@@ -1,4 +1,7 @@
+# hidden files
+.*
+!.github
+
+# jekyll cache
 _site
-Gemfile.lock
-.jekyll-cache
-gulpfile.js
+vendor
