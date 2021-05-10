@@ -50,13 +50,6 @@ GEM
       jekyll (>= 3.8, < 5.0)
     jekyll-sitemap (1.4.0)
       jekyll (>= 3.7, < 5.0)
-    jekyll-theme-chirpy (4.0.1)
-      jekyll (~> 4.1)
-      jekyll-archives (~> 2.2)
-      jekyll-paginate (~> 1.1)
-      jekyll-redirect-from (~> 0.16)
-      jekyll-seo-tag (~> 2.7)
-      jekyll-sitemap (~> 1.4)
     jekyll-watch (2.2.1)
       listen (~> 3.0)
     kramdown (2.3.1)
@@ -88,10 +81,11 @@ GEM
       ffi (~> 1.9)
     terminal-table (2.0.0)
       unicode-display_width (~> 1.1, >= 1.1.1)
+    thread_safe (0.3.6)
     typhoeus (1.4.0)
       ethon (>= 0.9.0)
-    tzinfo (2.0.4)
-      concurrent-ruby (~> 1.0)
+    tzinfo (1.2.9)
+      thread_safe (~> 0.1)
     tzinfo-data (1.2021.1)
       tzinfo (>= 1.0.0)
     unicode-display_width (1.7.0)
@@ -103,14 +97,15 @@ PLATFORMS
 
 DEPENDENCIES
   html-proofer
-  jekyll (>= 3.8.6)
+  jekyll (>= 4.0.0, < 5.0)
+  jekyll-archives
   jekyll-paginate
   jekyll-redirect-from
-  jekyll-seo-tag (~> 2.7)
-  jekyll-theme-chirpy
-  tzinfo
+  jekyll-seo-tag
+  jekyll-sitemap
+  tzinfo (~> 1.2)
   tzinfo-data
-  wdm (>= 0.1.0)
+  wdm (~> 0.1.1)
 
 BUNDLED WITH
    2.2.17
