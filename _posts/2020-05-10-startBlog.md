@@ -48,7 +48,7 @@ comments: true
 
    - [http://jekyllthemes.org/](http://jekyllthemes.org)에서 원하는 테마를 선택한 다음 아래의 그림과 같이 download zip를 눌러 파일을 다운 받는다.
 
-   ![download](../../assets/img/posts/2021-05-10-zip.png)
+   ![download](/assets/img/posts/2021-05-10-zip.png)
 
    - 이후 아까 clone 해놓은 파일에 다운로드 받은 zip 파일 압축을 해제한다.
 
