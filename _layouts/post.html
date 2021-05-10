@@ -108,9 +108,8 @@ layout: default
       id="post-extend-wrapper"
       class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"
     >
-      {% include related-posts.html %} {% include post-nav.html %} {% if
-      site.disqus.comments and page.comments %} {% include disqus-comments.html
-      %} {% endif %}
+      {% if site.disqus.comments %} {% include disqus-comments.html %} {% endif
+      %}
     </div>
     <!-- #post-extend-wrapper -->
   </div>
