@@ -1,9 +1,9 @@
 ---
 layout: post
-title: [블로그]Jekyll의 chirpy테마로 블로그 만들기
-tag: [jekyll,github page, chirpy]
+title: "[Blog] Jekyll의 chirpy테마로 개발자 블로그 만들기"
+tags: [jekyll, github page, chirpy]
 date: 2021-05-11 00:53:20 +0900
-category: Blog
+categories: Blog
 ---
 
 블로그를 만들기 위해 여러가지 플랫폼을 비교해보았지만 개발자라면 역시 깃허브 블로그라고 생각했다.
@@ -76,6 +76,5 @@ category: Blog
    - `setting`의 `pages`메뉴에서 `gh-pages`브랜치로 변경해주면 배포가 완료된다.
 
 이제 \_posts 폴더내부에 마크다운 방식으로 작성하여 push하면 블로그에 포스팅 된다.
-나는 게시글을 push 할때마다 master 브랜치에 build failed가 발생하여 계속 검색도 해보고 했으나, 이 부분과 별개로 git action의 `pages-deploy` 가 성공적으로 작동되면 로컬에서 본 \_site 폴더 내부의 파일들이 `gh-pages` 브랜치로 생기고, 이 브랜치로 페이지를 작동시키면 잘 잘동되었다. 역시 readme를 잘 읽어야 한다.
 
 끝!!
