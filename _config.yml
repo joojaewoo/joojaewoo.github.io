@@ -48,6 +48,13 @@ defaults:
       comments: true # Enable comments in posts.
       toc: true
       permalink: /posts/:title/
+  - scope:
+      path: ""
+      type: tabs # see `site.collections`
+    values:
+      layout: page
+      permalink: /:title/
+      dynamic_title: true # Hide title in mobile screens.
 
 sass:
   style: compressed
@@ -75,4 +82,12 @@ plugins:
   - jekyll-seo-tag
 
 exclude:
+  - README.md
+  - Rakefile
   - Gemfile
+  - Gemfile.lock
+  - changelog.md
+  - "*.Rmd"
+  - vendor
+  - .travis.yml
+  - node_modules
