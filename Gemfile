@@ -7,7 +7,7 @@ group :jekyll_plugins do
   gem "jekyll-paginate"
   gem "jekyll-redirect-from"
   gem 'tzinfo'
-  gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, x86_64-linux]
+  gem 'tzinfo-data'
   gem "jekyll-seo-tag"
   gem "jekyll-archives"
   gem "jekyll-sitemap"
