@@ -2,7 +2,7 @@
 layout: post
 title: "[Blog] Jekyll의 chirpy테마로 개발자 블로그 만들기"
 tags: [jekyll, github page, chirpy]
-date: 2021-05-11 00:53:20 +0900
+date: 2021-05-10 23:45:20 +0900
 categories: Blog
 ---
 
