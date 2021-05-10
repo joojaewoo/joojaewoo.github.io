@@ -1,73 +1,27 @@
-# theme: jekyll-theme-chirpy
-baseurl: ""
-timezone: Asia/Seoul
-title: Jae-woo's blog # the main title
-
-tagline: dev-blog # it will display as the sub-title
-
+title: Jae-woo's blog
+email: wnwodn4293@naver.com
 description: FE개발자를 꿈꾸며 공부내용을 올리는 블로그 입니다.
-
-# fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
+baseurl: ""
 url: "https://joojaewoo.github.io"
-
-github:
-  username: joojaewoo # change to your github username
-
+github_username: joojaewoo
 social:
-  # Change to your full name.
-  # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: jae-woo
   email: wnwodn4293@naver.com
   links:
-    # The first element serves as the copyright owner's link
-    - https://github.com/joojaewoo # change to your github homepage
-    # Uncomment below to add more social links
-    - https://www.facebook.com/joojaewoo
-    # - https://www.linkedin.com/in/username
+    - https://github.com/joojaewoo
 
 google_site_verification: google-site-verification=MKnrYnihpuylpoPueT1803M7dgeR2SPGQRHHFRadG-s
-# --------------------------
 
-google_analytics:
-  id: "" # fill in your Google Analytics ID
-  # Google Analytics pageviews report settings
-  pv:
-    proxy_endpoint: # fill in the Google Analytics superProxy endpoint of Google App Engine
-    cache_path: # the local PV cache data, friendly to visitors from GFW region
-
-# Prefer color scheme setting.
-#
-# Note: Keep empty will follow the system prefer color by default,
-# and there will be a toggle to switch the theme between dark and light
-# on the bottom left of the sidebar.
-#
-# Available options:
-#
-#     light  - Use the light color scheme
-#     dark   - Use the dark color scheme
-#
-theme_mode: # [light|dark]
-
-# The CDN endpoint for images.
-# Notice that once it is assigned, the CDN url
-# will be added to all image (site avatar & posts' images) paths starting with '/'
-#
-# e.g. 'https://cdn.com'
-img_cdn: ""
-
-# the avatar on sidebar, support local or CORS resources
 avatar: https://user-images.githubusercontent.com/46195613/117643526-75eae700-b1c3-11eb-8904-9905dd44c312.jpg
+paginate: 10
 
-# boolean type, the global switch for ToC in posts.
 toc: true
 
 disqus:
-  comments: false # boolean type, the global switch for posts comments.
+  comments: true # boolean type, the global switch for posts comments.
   shortname: "jaew-woo" # Fill with your Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
 
-paginate: 10
-
-# ------------ The following options are not recommended to be modified ------------------
+markdown: kramdown
 
 kramdown:
   syntax_highlighter: rouge
@@ -92,21 +46,8 @@ defaults:
     values:
       layout: post
       comments: true # Enable comments in posts.
-      toc: true # Display TOC column in posts.
-      # DO NOT modify the following parameter unless you are confident enough
-      # to update the code of all other post links in this project.
+      toc: true
       permalink: /posts/:title/
-  - scope:
-      path: _drafts
-    values:
-      comments: false
-  - scope:
-      path: ""
-      type: tabs # see `site.collections`
-    values:
-      layout: page
-      permalink: /:title/
-      dynamic_title: true # Hide title in mobile screens.
 
 sass:
   style: compressed
@@ -120,17 +61,6 @@ compress_html:
   ignore:
     envs: [development]
 
-exclude:
-  - "*.gem"
-  - "*.gemspec"
-  - tools
-  - docs
-  - README.md
-  - LICENSE
-  - gulpfile.js
-  - node_modules
-  - "*.json"
-
 jekyll-archives:
   enabled: [categories, tags]
   layouts:
@@ -139,3 +69,11 @@ jekyll-archives:
   permalinks:
     tag: /tags/:name/
     category: /categories/:name/
+
+plugins:
+  - jekyll-paginate
+  - jekyll-seo-tag
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
