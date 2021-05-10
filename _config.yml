@@ -1,4 +1,5 @@
-title: Jae-woo's blog
+title: Jaewoo's devlog
+tagline:
 email: wnwodn4293@naver.com
 description: FE개발자를 꿈꾸며 공부내용을 올리는 블로그 입니다.
 baseurl: ""
@@ -12,8 +13,8 @@ social:
 
 google_site_verification: google-site-verification=MKnrYnihpuylpoPueT1803M7dgeR2SPGQRHHFRadG-s
 
-avatar: https://user-images.githubusercontent.com/46195613/117643526-75eae700-b1c3-11eb-8904-9905dd44c312.jpg
-paginate: 10
+avatar: /assets/img/profile/profile.jpg
+paginate: 5
 
 toc: true
 
