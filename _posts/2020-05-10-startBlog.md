@@ -2,7 +2,7 @@
 layout: post
 title: "[Blog] Jekyll의 chirpy테마로 개발자 블로그 만들기"
 tags: [jekyll, github page, chirpy]
-date: 2021-05-10 23:45:20 +0900
+date: 2021-05-10 23:38:00 +0900
 categories: Blog
 comments: true
 ---
@@ -45,9 +45,13 @@ comments: true
    gem install bunder jekyll
    ```
 3. 파일 다운로드
+
    - [http://jekyllthemes.org/](http://jekyllthemes.org)에서 원하는 테마를 선택한 다음 아래의 그림과 같이 download zip를 눌러 파일을 다운 받는다.
-     ![download](../assets/img/posts/2021-05-11-zip.png)
+
+   ![download](../../assets/img/posts/2021-05-10-zip.png)
+
    - 이후 아까 clone 해놓은 파일에 다운로드 받은 zip 파일 압축을 해제한다.
+
 4. 프로젝트 초기화
    - 이제 프로젝트 폴더로 이동하여 Initialization을 해준다
    ```
