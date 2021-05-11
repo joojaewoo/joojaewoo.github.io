@@ -5,11 +5,13 @@ description: FE개발자를 꿈꾸며 공부내용을 올리는 블로그 입니
 baseurl: ""
 url: "https://joojaewoo.github.io"
 github_username: joojaewoo
+locale: ko-KR
 social:
   name: jae-woo
   email: wnwodn4293@naver.com
   links:
     - https://github.com/joojaewoo
+    - https://www.facebook.com/joojaewoo
 
 google_site_verification: google-site-verification=MKnrYnihpuylpoPueT1803M7dgeR2SPGQRHHFRadG-s
 
@@ -81,6 +83,7 @@ jekyll-archives:
 plugins:
   - jekyll-paginate
   - jekyll-seo-tag
+  - jekyll-sitemap
 
 exclude:
   - README.md
