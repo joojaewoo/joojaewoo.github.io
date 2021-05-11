@@ -83,7 +83,6 @@ jekyll-archives:
 plugins:
   - jekyll-paginate
   - jekyll-seo-tag
-  - jekyll-sitemap
 
 exclude:
   - README.md
