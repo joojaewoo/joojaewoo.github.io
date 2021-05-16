@@ -15,6 +15,12 @@ social:
 
 google_site_verification: google-site-verification=MKnrYnihpuylpoPueT1803M7dgeR2SPGQRHHFRadG-s
 
+google_analytics:
+  id: "G-Y0G10JH3N2"
+  pv:
+    proxy_endpoint: # fill in the Google Analytics superProxy endpoint of Google App Engine
+    cache_path: # the local PV cache data, friendly to visitors from GFW region
+
 avatar: /assets/img/profile/profile.jpg
 paginate: 5
 
