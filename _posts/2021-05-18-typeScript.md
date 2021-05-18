@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "[TypesScript] 타입스크립트 기초 공부"
-date: 2021-05-12 17:10:00 +0900
+date: 2021-05-18 17:10:00 +0900
 categories: [Study, TypeScript]
 tags: [typescript]
 comments: true
