@@ -2,7 +2,7 @@
 layout: post
 title: "[ToyProject] 카카오톡 클론 프로젝트(1)"
 date: 2021-05-22 19:21:00 +09:00
-categories: [development, Clone]
+categories: [Development, Clone]
 tags: [next.js, typescript, eslint, preitter]
 comments: true
 ---
