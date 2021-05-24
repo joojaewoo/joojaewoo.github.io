@@ -38,7 +38,7 @@ order: 5
     }
 @media (max-width:540px){
         .contentContainer {display: none;}
-        .cardContainer{ width: 350px;}
+        .cardContainer{ width: 400px;}
     }
 [class*="image"] {
     visibility: inherit;
