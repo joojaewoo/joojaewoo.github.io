@@ -10,9 +10,9 @@ comments: true
 질문에 대한 답은 주관적으로 저의 생각을 적은 것이기 떄문에 정답이 아닐 수 도 있습니다. 만약 틀린경우 알려주시면 감사하겠습니다.
 질문은 실제 면접에서 받은 질문과 인터넷 검색 등을 통해 제 나름대로 만들어본 질문입니다. 참고 용도로 보시면 좋을 것 같습니다.
 
-## JavaScript
+### JavaScript
 
-### this
+#### this
 
 - this 란?
 
@@ -37,7 +37,7 @@ comments: true
 
   call : 첫번째 인자로 this값, 두번째 인자부터 함수 호출에 필요한 인자들을 입력하며 함수를 호출
 
-### Scope
+#### Scope
 
 - let와 var차이는?
 
@@ -49,7 +49,7 @@ comments: true
 
   함수가 선언되는 위치에 따라서 상위 스코프가 결정되는 스코프
 
-### 클로저
+#### 클로저
 
 - 클로저란?
 
@@ -65,7 +65,7 @@ comments: true
 
   프로젝트에서 싱글톤 패턴을 구현하기할 때 클로저를 사용해서 전역변수의 사용을 막을 수 있었다.
 
-### 이벤트루프
+#### 이벤트루프
 
 - 자바스크립트는 싱글스레드인데 어떻게 비동기 처리를 할까?
 
@@ -79,7 +79,7 @@ comments: true
 
   마이크로 테스크큐 ( promise ) ⇒ 애니메이션 프레임 ( request AnimationFrame API ) ⇒ 테스크큐
 
-### 이벤트 처리
+#### 이벤트 처리
 
 - 이벤트 버블링과 캡처링에 대해 설명해주세요
 
@@ -103,7 +103,7 @@ comments: true
 
   stopPropagation : 버블링과 캡처링을 막는 메서드
 
-### 실행 컨텍스트
+#### 실행 컨텍스트
 
 - 실행컨텍스트란?
 
@@ -125,7 +125,7 @@ comments: true
 
   3. this 값
 
-### 호이스팅
+#### 호이스팅
 
 - 호이스팅이란?
 
@@ -137,7 +137,7 @@ comments: true
 
   let 변수도 호이스팅이 발생하지만 초기화가 되지않아 reference Error 이 발생한다.
 
-### 자료형
+#### 자료형
 
 - 원시형 데이터와 참조형 데이터의 차이
 
@@ -151,7 +151,7 @@ comments: true
 
   null : 명시적으로 값이 비어있음을 나타낸다
 
-### Callback vs Promise vs async&await
+#### Callback vs Promise vs async&await
 
 - callback
 
@@ -173,7 +173,7 @@ comments: true
 
   예외처리는 try catch 문을 사용
 
-### webpack과 babel
+#### webpack과 babel
 
 - webpack이란
 
@@ -195,7 +195,7 @@ comments: true
 
   크로스 브라우징 이슈를 해결하기 위해 만들어짐, EX6+, 타입스크립트, jsx등 다른 언어로 분류되는 언어들에 대해서 모든 브라우저에서 동작할 수 있도록 호환성을 지켜준다
 
-### ES6+ 추가된 문법
+#### ES6+ 추가된 문법
 
 1. 변수
 
@@ -270,7 +270,7 @@ comments: true
 
 10. Promise, async&await
 
-### Garbage Collection
+#### Garbage Collection
 
 - Mark-and-sweep 알고리즘
 
@@ -284,48 +284,48 @@ comments: true
 
   순환참조문제 : 서로 참조하고있을 경우 참조카운트가 0이되지 못해서 메모리낭비가 발생한다
 
-## React
+### React
 
-- 리액트란?
+#### 리액트란?
 
-  프론트엔드 라이브러리로 컴포넌트 기반으로 되어있어 컴포넌트에 데이터를 내려주면 개발자가 설계한대로 UI가 만들어져 사용자에게 보여진다.
+프론트엔드 라이브러리로 컴포넌트 기반으로 되어있어 컴포넌트에 데이터를 내려주면 개발자가 설계한대로 UI가 만들어져 사용자에게 보여진다.
 
-  핵심원리로는 Virtual DOM을 사용한다
+핵심원리로는 Virtual DOM을 사용한다
 
-  - Virtual DOM
+- Virtual DOM
 
-    DOM조작이 속도상 느리기 떄문에 VDOM을 사용한다
+  DOM조작이 속도상 느리기 떄문에 VDOM을 사용한다
 
-    DOM차원에서 더블 버퍼링이라고 생각한다.
+  DOM차원에서 더블 버퍼링이라고 생각한다.
 
-    변화가 발생하면 오프라인 DOM 트리에 적용 ( 실제 렌더링이 되지 않아 연산 비용이 작다) 후 최종적인 변화를 실제 DOM에게 전달한다 ( 모든 변화를 하나로 묶어서 진행, 레이아웃 계산과 렌더링의 규모는 커지지만 한번의 계산으로 연산 횟수를 줄일 수 있다 )
+  변화가 발생하면 오프라인 DOM 트리에 적용 ( 실제 렌더링이 되지 않아 연산 비용이 작다) 후 최종적인 변화를 실제 DOM에게 전달한다 ( 모든 변화를 하나로 묶어서 진행, 레이아웃 계산과 렌더링의 규모는 커지지만 한번의 계산으로 연산 횟수를 줄일 수 있다 )
 
-  - 비교과정
+- 비교과정
 
-    휴리스틱 알고리즘
+  휴리스틱 알고리즘
 
-    - 서로다른 타입을 가진 두 엘리먼트는 다른 트리를 만들어낸다.
-    - 개발자가 key prop를 통해 자식 엘리먼트의 변경 여부를 표시할 수 있다.
+  - 서로다른 타입을 가진 두 엘리먼트는 다른 트리를 만들어낸다.
+  - 개발자가 key prop를 통해 자식 엘리먼트의 변경 여부를 표시할 수 있다.
+
+#### 리액트 버전
 
 - 프로젝트 진행하면서 리액트 몇 버전을 사용하셨나요?
 
   17.0.1버전을 사용했다.
 
-- 최신버전이 몇 버전인줄 알고 계신가요?
+  - 최신버전이 몇 버전인줄 알고 계신가요?
 
-  17.0.2
+    17.0.2
 
-- 최신버전에서 새롭게 추가된 문법에 대해 말해주세요
+  - 최신버전에서 새롭게 추가된 문법에 대해 말해주세요
 
-  [React version - React Blog](<[https://ko.reactjs.org/versions/](https://ko.reactjs.org/versions/)>)
+  [React version - React Blog](https://ko.reactjs.org/versions/)
 
   clean up 함수를 비동기로 처리
 
   document 수준에서 이벤트 핸들러를 연결하지 않고 렌더링 되는 루트노드 컨테이너에 첨부한다.
 
-- react 라이프 사이클에대해 말해주세요
-
-  ![image](https://blog.kakaocdn.net/dn/w3ych/btqAQOjLtoN/R0EdkXLZBJ2qr2As5TKTt0/img.png)
+#### 리액트 hooks
 
 - useEffect에 대해 설명해주세요
 
@@ -334,7 +334,13 @@ comments: true
   의존 배열을 입력받아 해당 값이 변경되었을 때 실행, 의존배열이 없다면 리렌더링시 항상 실행
 
 - useEffect는 어떤 라이프 사이클에 해당하나요?
-  - componentDidMount, componentDidUpdate, componentWillUnmount
+
+  componentDidMount, componentDidUpdate, componentWillUnmount
+
+- react 라이프 사이클에대해 말해주세요
+
+![image](https://blog.kakaocdn.net/dn/w3ych/btqAQOjLtoN/R0EdkXLZBJ2qr2As5TKTt0/img.png)
+
 - cleanup 함수에 대해 말해주세요
 
   useEffect에서 return하는 함수
@@ -345,7 +351,10 @@ comments: true
 
   ex) 구독을 해제할때 사용한다.
 
+#### 컴포넌트
+
 - 클래스형과 함수형 컴포넌트의 차이점에 대해 말해주세요
+
   - 클래스형
     - state, lifeCycle 관련 기능사용 가능하다.
     - 메모리 자원을 함수형 컴포넌트보다 조금 더 사용한다.
@@ -354,16 +363,23 @@ comments: true
     - state, lifeCycle 관련 기능사용 불가능[ hook를 통해 해결 ]
     - 메모리 자원을 클래스형 컴포넌트보다 덜 사용한다.
     - 컴포넌트 선언이 편하다.
-- state와 props에 대해 말해주세요
-  - state : 컴포넌트의 상태로 변할 수 있는 값, 컴포넌트 내부에서선언되고 관리된다.
-  - props : 부모 컴포넌트로 받은 값으로 변경할 수 없는 읽기 전용의 값.
+
 - 고차 컴포넌트에 대해 말해주세요
 
   컴포넌트 로직을 재사용하기 위한 react의 기술로 컴포넌트를 취하여 새로운 컴포넌트를 반환하는 함수
 
+#### 상태관리
+
+- state와 props에 대해 말해주세요
+
+  - state : 컴포넌트의 상태로 변할 수 있는 값, 컴포넌트 내부에서선언되고 관리된다.
+  - props : 부모 컴포넌트로 받은 값으로 변경할 수 없는 읽기 전용의 값.
+
 - 프로젝트에서 어떻게 상태관리를 했는지 말해주세요
 
   저는 contextAPI를 통해 상태관리를 하고, graphQL을 사용했을 때는 apollo-client, swr의 캐시를 통해서 상태관리를 했습니다.
+
+#### 키
 
 - 리액트 키에 대해 설명해주세요
 
@@ -374,6 +390,8 @@ comments: true
   키값에 유니크한 값을 부여해서 불필요한 렌더링을 막을 수 있다
 
   키값은 하나의 리스트 내에서만 유일하면 된다
+
+#### SPA
 
 - SPA에 대해 설명해주세요
 
