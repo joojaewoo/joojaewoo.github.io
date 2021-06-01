@@ -1,0 +1,2059 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+   <!-- 피드경로 명시 -->
+  <channel>
+    <title> Jaewoo's devlog  </title>
+    <description>FE개발자를 꿈꾸며 공부내용을 올리는 블로그 입니다.</description>
+    <link>https://joojaewoo.github.io/</link>
+    <atom:link href="https://joojaewoo.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Tue, 01 Jun 2021 05:58:55 +0000</pubDate>
+    <lastBuildDate>Tue, 01 Jun 2021 05:58:55 +0000</lastBuildDate>
+    <generator>Jekyll v4.2.0</generator>
+    
+      <item>
+        <title>[ToyProject] 카카오톡 클론 프로젝트(6)</title>
+        <description>&lt;p&gt;오늘은 헤더 컴포넌트를 구현하고 이메일 인증 기능, 회원가입 기능을 구현하였다.&lt;/p&gt;
+
+&lt;h3 id=&quot;헤더-컴포넌트&quot;&gt;헤더 컴포넌트&lt;/h3&gt;
+
+&lt;p&gt;친구목록과 채팅목록에서 모두 사용하는 헤더 컴포넌트를 구현하였다. title과 children을 props로 받아 구현하였고, position을 fix로 고정시켜 항상 상단에 유지되게 구현하였다.&lt;/p&gt;
+
+&lt;p&gt;메인페이지에 헤더를 달아 보았다. 지금보니 헤더의 크기가 조금 작은 것 같다. 크기를 좀더 크게 수정해야 겠다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/posts/kakao06.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;환경변수-설정&quot;&gt;환경변수 설정&lt;/h3&gt;
+
+&lt;p&gt;.env를 통해 환경변수를 관리하기 위해 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@nestjs/config&lt;/code&gt;패키지를 설치했다. 이후 app.module 파일의 imports 부분에 config모듈을 추가하면 된다. isGlobal속성을 통해 전역적으로 환경변수를 사용할 수 있게 해주었다. 다양한 옵션들이 많으니 궁금하면 공식홈페이지를 참조하면 될 것 같다.&lt;/p&gt;
+
+&lt;div class=&quot;language-ts highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ConfigModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;@nestjs/config&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;imports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:[&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;ConfigModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;forRoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isGlobal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}),&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;이메일-인증-기능&quot;&gt;이메일 인증 기능&lt;/h3&gt;
+
+&lt;p&gt;메일 인증기능을 구현하기 위해서 nodemailer라이브러리를 사용했다.
+nodemailer을 사용하기 위해서는 보안설정을 해줘야한다. &lt;a href=&quot;https://myaccount.google.com/lesssecureapps&quot;&gt;https://myaccount.google.com/lesssecureapps&lt;/a&gt; 링크로 들어가서 보안 수준이 낮은 앱의 액세스 허용으로 설정해줘야한다.&lt;/p&gt;
+
+&lt;h4 id=&quot;nodemailer-객체-생성&quot;&gt;nodemailer 객체 생성&lt;/h4&gt;
+
+&lt;div class=&quot;language-ts highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;nodemailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createTransport&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;service&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Gmail&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;구글아이디&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;pass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;구글 비밀번호&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;tls&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;rejectUnauthorized&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;nodemailer을 다운로드 받은 다음 다음과 같이 객체를 생성해주었다. 나는 구글 메일을 사용했지만 네이버 메일을 사용하고 싶은 경우 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;service: &quot;Naver&quot;&lt;/code&gt;로 설정해주면 된다. 네이버는 1000건, 구글은 500건 제한이 걸려있다고 알고있다.&lt;/p&gt;
+
+&lt;h4 id=&quot;인증번호-생성-함수&quot;&gt;인증번호 생성 함수&lt;/h4&gt;
+
+&lt;div class=&quot;language-ts highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;getRandomNum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;floor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;padStart&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;위처럼 6자리 자연수를 문자열로 바꿔주고 6자리가 안될시 앞에 0을 6자리까지 붙여주었다. 이로써 6자리의 랜덤 문자열을 생성할 수 있었다.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;padStart (maxLength, str) : 첫 번째 인자로 최대길이, 두번째 인자로 반복할 문자열을 넣어주면, 최대길이가 될때까지 문자열을 반복하여 앞쪽에 추가해준다. 뒤에 추가하려면 padEnd를 사용하면된다.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&quot;메일-내용-작성&quot;&gt;메일 내용 작성&lt;/h4&gt;
+
+&lt;p&gt;메일옵션을 다음과 같이 정의했다. 나처럼 하면 텍스트로 전송되어 한줄로 전송되고 글 크기, 색상등을 추가할 수없지만 html 태그도 넣을 수 있다고 보았다. 나중에 시간이 되면 변경해 봐야겠다.&lt;/p&gt;
+
+&lt;div class=&quot;language-ts highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mailOptions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;jaewoo`s clone project&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;[카카오톡 클론]인증 관련 이메일 입니다&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;오른쪽 숫자 6자리를 입력해주세요 : &lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;number&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;메일-보내기&quot;&gt;메일 보내기&lt;/h4&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nodemailer.createTransport&lt;/code&gt;로 만든 객체의 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sendMail&lt;/code&gt;메소드를 사용하면 메일을 보낼 수 있다. 여기서 두번째 인자로 콜백함수를 넣어 실패, 성공의 경우에 따라 행동을 정의할 수 있다. 그러나 나의 경우 해당 함수 전체를 try catch 문을 사용해서 에러처리를 해주었다.&lt;/p&gt;
+
+&lt;div class=&quot;language-ts highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;smtpTransport&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sendMail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mailOptions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;메일-인증&quot;&gt;메일 인증&lt;/h4&gt;
+
+&lt;p&gt;메일 인증을 어떻게 할까 고민을 많이 했는데, 가장 단순하게 컬렉션을 하나 더 만들고, 해당 컬렉션에 이메일정보와, 인증 키를 저장해 놓는다. 같은 이메일로 인증 정보를 받을 경우, 인증키를 수정해준다. 인증 번호를 입력하고 인증하기 버튼을 누르면, 해당 컬렉션에서 이메일, 인증번호로 찾아서 값이 있으면 인증 완료를 시켜주는 로직을 작성하였다.&lt;/p&gt;
+
+&lt;h4 id=&quot;문제점&quot;&gt;문제점&lt;/h4&gt;
+
+&lt;p&gt;메일의 아이디 패스워드가 들어가서 .env를 통해 환경변수를 관리해주었는데, nodemailer 객체를 생성하는 부분을 libs폴더로 분리하였다. 아직 Nest.JS의 동작 순서를 완벽히 이해하지 못해서 그런지 main.ts보다 libs에 작성한 console.log 가 먼저 찍혔고 아직 config모듈을 읽어오기 전이라 process.env가 undefined가 출력되었다. 이를 해결하기 위해 클로저로 싱글톤 패턴을 도입하였다.&lt;/p&gt;
+
+&lt;p&gt;즉시실행함수로 함수를 반환하는 함수를 만들어주고, mailer이 없을 경우 새로 생성해서 반환해준다. 이렇게 하면 내가 사용할 때, 즉 서버가 완전히 구동되고 난 다음에 nodemailer 모듈이 생성되기 때문에 잘 작동했다. createTransport의 반환값은 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nodemailer.Transporter&amp;lt;STMPtransport.SentMessageInfo&amp;gt;&lt;/code&gt; 라고 타입이 정해져있엇는데 STMPtransport 를 찾을 수 없다고 해서 nodemailer객체의 SentMessageInfo타입으로 지정해주었지만 SentMessageInfo가 any타입으로 설정되어 이 부분을 좀 더 찾아봐야겠다.&lt;/p&gt;
+
+&lt;div class=&quot;language-ts highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;c1&quot;&gt;// libs/email&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;nodemailer&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;nodemailer&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;mailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;nodemailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Transporter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;nodemailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;SentMessageInfo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;mailer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;nodemailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createTransport&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;service&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Gmail&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;na&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;GOOGLE_ID&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+          &lt;span class=&quot;na&quot;&gt;pass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;GOOGLE_PASSWORD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;tls&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;na&quot;&gt;rejectUnauthorized&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})();&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;마무리&quot;&gt;마무리&lt;/h3&gt;
+
+&lt;p&gt;메일 인증을 구현해보았는데 처음 구현했지만 라이브러리와 설명글이 잘 작성되어 있었다. 처음 구현해보며 테스트할 때 메일이 날라오는 걸 보고 신기했다 ㅎㅎ
+하지만 아직 Nest.JS에 대해 잘 모르는 것 같다. 백엔드 로직을 본격적으로 작성하기 전에 Nest.JS에 대해 공부하고 정리하는 시간이 필요할 것 같다.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 01 Jun 2021 04:53:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/kakao-clone-6/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/kakao-clone-6/</guid>
+        
+        <category>typescript</category>
+        
+        <category>next.js</category>
+        
+        <category>emotion</category>
+        
+        <category>nest.js</category>
+        
+        
+        <category>Development</category>
+        
+        <category>Clone</category>
+        
+      </item>
+    
+      <item>
+        <title>[ToyProject] 카카오톡 클론 프로젝트(5)</title>
+        <description>&lt;p&gt;오늘은 프로필 페이지 UI를 구현하고 메인에서 친구 목록 카드 UI에 대해 만들어 보았다.&lt;/p&gt;
+
+&lt;h3 id=&quot;프로필-페이지&quot;&gt;프로필 페이지&lt;/h3&gt;
+
+&lt;p&gt;이미지 컴포넌트와 버튼 컴포넌트를 조합하여 프로필 페이지를 구현하였고, 상단의 X버튼은 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;router.back()&lt;/code&gt;를 통해 뒤로가기 버튼으로 만들어 주었다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/posts/kakao04.png&quot; alt=&quot;profile&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;image-component&quot;&gt;Image Component&lt;/h4&gt;
+
+&lt;p&gt;이미지 컴포넌트로 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;name, imageUrl&lt;/code&gt;을 props로 내려주는데 imageUrl이 없으면 3항 연산자를 사용해서 기본 이미지로 SVG ICON 컴포넌트를 렌더링 해주었다.&lt;/p&gt;
+
+&lt;div class=&quot;language-tsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;c1&quot;&gt;// Profile/ImageComponent&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;imageUrl&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;img&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;imageUrl&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;alt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;profile&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;UserIcon&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;프로필 사진의 위치를 잡기 위해 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;position: absolute&lt;/code&gt;로 설정하고 알맞은 위치에 이미지를 위치시켰다. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;amp; &amp;gt; svg, img&lt;/code&gt;를 통해 Container 컴포넌트 내부에 있는 img와 svg에 대해서 크기를 설정해줘서 위와 같이 UI를 구현할 수 있었다.&lt;/p&gt;
+
+&lt;h4 id=&quot;button-component&quot;&gt;Button Component&lt;/h4&gt;
+
+&lt;p&gt;카카오톡을 보니 내 프로필일떄는 나에게 대화, 프로필 수정 버튼이 존재했고, 친구 프로필일때는 1:1대화 하기 버튼이 존재했다. 프로필 페이지에서 내 프로필인지 아닌지 판단해서 버튼 컴포넌트에게 boolean 값을 넘겨주고 해당 값에 따라 버튼을 다르게 보여주었다.&lt;/p&gt;
+
+&lt;div class=&quot;language-tsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;isMyProfile&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ButtonContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;button&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+          &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ChatIcon&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TextContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;나와의 채팅&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TextContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ButtonContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ButtonContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;button&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+          &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;EditIcon&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;&lt;/span&gt;0
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TextContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;프로필 수정&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TextContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ButtonContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ButtonContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;button&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+          &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ChatIcon&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TextContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;1:1 채팅&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TextContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ButtonContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;&amp;lt;/&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;글을 작성하면서 생각하니 친구가 아니면 친구 추가라는 버튼을 만들어 줘야한다는 생각이 들었고, 컴포넌트를 더욱 분리해서 내일 구현해 봐야겠다.&lt;/p&gt;
+
+&lt;h3 id=&quot;친구-목록-컴포넌트&quot;&gt;친구 목록 컴포넌트&lt;/h3&gt;
+
+&lt;p&gt;친구 목록 컴포넌트를 구현했다. 아래의 사진은 이를 map를 통해서 여러개를 렌더링한 모습이다.&lt;/p&gt;
+
+&lt;p&gt;이미지와 문자가 들어갈 부분으로 나누고 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;display: flex&lt;/code&gt;속성을 통해 가로로 렌더링 해주었다. 여기도 마찬가지로 프로필 이미지가 없으면 3항 연산자를 통해 기본 이미지를 보여주도록 작성하였다.&lt;/p&gt;
+
+&lt;p&gt;프로필 이미지와 친구목록에서의 이미지 모두에 이미지 컴포넌트가 사용되었고 이를 내일 다시 리팩토링을 통해 분리해볼 예정이다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/posts/kakao05.png&quot; alt=&quot;friendlist&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;db-스키마&quot;&gt;DB 스키마&lt;/h3&gt;
+
+&lt;p&gt;원래 MongoDB를 통해 모든 데이터를 관리하려고 했는데, DB 스키마를 어떻게 작성하면 좋을지 생각이 잘 나지않아 다른분께 여쭤보았다. 채팅 로그만 MongoDB에 작성하고, 수정이 많이 일어날 수 있는 사용자 정보에 대해서는 RDB로 관리하는 것도 좋을 것 같다는 의견을 들었다. 이 부분에 대해서 조금 더 생각해봐야겠다.&lt;/p&gt;
+
+&lt;p&gt;잘 모르겠으면 먼저 inmemory방식으로 채팅을 구현하고 나중에 DB연동을 하는 방법도 고려중이다. 내가 프로젝트를 진행하는 이유가 소켓 통신을 사용해보려고 하는 것이 가장 큰 이유인데, 다른 부분에 너무 많은 시간을 소요하는 것 같아 소켓 통신을 통해 채팅을 구현하고 나중에 기능을 추가해도 좋을 것 같아 고려중이다.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 28 May 2021 07:22:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/kakao-clone-5/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/kakao-clone-5/</guid>
+        
+        <category>typescript</category>
+        
+        <category>next.js</category>
+        
+        <category>emotion</category>
+        
+        
+        <category>Development</category>
+        
+        <category>Clone</category>
+        
+      </item>
+    
+      <item>
+        <title>[Interview] 네트워크/HTML/Browser 면접 예상 질문</title>
+        <description>&lt;h3 id=&quot;네트워크&quot;&gt;네트워크&lt;/h3&gt;
+
+&lt;h4 id=&quot;대칭키와-비-대칭키공개키에-대해-설명해주세요&quot;&gt;대칭키와 비 대칭키(공개키)에 대해 설명해주세요&lt;/h4&gt;
+
+&lt;p&gt;대칭키 : 암호화, 복호화에 사용하는 키가 동일한 방식으로 속도가 빠르다는 장점이 있지만, 같은 키를 사용하기 위해서 키를 교환해야한다는 문제가 발생한다. 키를 교환하는 중 키가 탈취될 수 있다.&lt;/p&gt;
+
+&lt;p&gt;비 대칭키 : 암호화, 복호화에 사용되는 키가 서로 달라 비 대칭키라고 한다. 대칭키의 키 교환 문제를 해결하기 위해 등장했으며, 이름 그대로 키가 공개되어있기 떄문에 키를 교환할 필요가 없다. 하지만 키의 길이가 길고 복합한 수학적 연산을 해야되기 떄문에 암호화, 복호화 속도가 느린 단점이 있다.&lt;/p&gt;
+
+&lt;h4 id=&quot;tcp의-흐름제어와-혼잡제어에-대해-말해주세요&quot;&gt;TCP의 흐름제어와 혼잡제어에 대해 말해주세요&lt;/h4&gt;
+
+&lt;p&gt;혼잡제어 : 네트워크의 혼잡을 피하기 위해 송신측에서 보내는 데이터의 전송 속도를 줄이는 것, 3번 연속된 응답이나 패킷 손실로 인한 타임아웃을 보고 혼잡을 알아낸다. (AIMD, Slow Start, Fast Retransmit, Fast Recover)&lt;/p&gt;
+
+&lt;p&gt;흐름제어 : 송 수신측의 데이터 처리 속도 차이로 인해 송신측의 데이터 전송량을 수신측에 따라 조절하는 것 (Stop and Wait, Go Back N)&lt;/p&gt;
+
+&lt;h4 id=&quot;http-버전별-차이점에-대해-말해주세요&quot;&gt;HTTP 버전별 차이점에 대해 말해주세요&lt;/h4&gt;
+
+&lt;p&gt;HTTP/0.9 : 가장 초기버전으로 메소드, 헤더가 없어 HTML을 조회하는 용도로만 사용할 수 있었으며, 응답 코드가 없어 오류 메시지를 추가해서 응답했다.&lt;/p&gt;
+
+&lt;p&gt;HTTP/1.0 : 상태코드가 응답값 시작부분에 포함되어 성공과 실패를 바로 확인하게 되었고, 헤더가 추가되어 확장이 가능하게 되었다.&lt;/p&gt;
+
+&lt;p&gt;HTTP/1.1 : OPTION, DELETE, PUT, TRACE의 메소드가 추가되었고 헤더도 몇가지 추가되었다. 성능 향상을 위해 일정 시간동안 서버와 API서버간의 연결 정보를 기억해 반복적으로 일어나는 통신의 연결과 끊음을 줄였다.&lt;/p&gt;
+
+&lt;p&gt;HTTP/2.0 : 바이너리 포멧으로 인코딩된 Message와 Frame으로 구성되어있다. 스트림을 이용해서 한번의 커넥션으로 여러개의 데이터를 동시에 주고받을 수 있다.
+이전 헤더내용과 중복되는 필드를 재 전송하지 않아 데이터를 절약하고 헤더를 허프만 코딩을 사용하는 HPack라는 압축방식을 사용해 데이터 전송 효율을 높였다.&lt;/p&gt;
+
+&lt;p&gt;HTTP/3.0 : QUIC 기반의 HTTP, TCP/IP기반의 어플리케이션 레이어 프로토콜인 HTTP를 QUIC위에 얹었다.
+QUIC : TCP의 신뢰성과, UDP의 빠른 성능을 토대로 구현, UDP 기반으로 만들어졌으며 대역폭을 예상해서 패킷 혼잡을 피하는 것이 주요 특징&lt;/p&gt;
+
+&lt;h4 id=&quot;http-상태-코드&quot;&gt;HTTP 상태 코드&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;2xx : 성공&lt;/li&gt;
+  &lt;li&gt;3xx : 리다이렉션&lt;/li&gt;
+  &lt;li&gt;4xx : 클라이언트 에러 코드
+    &lt;ul&gt;
+      &lt;li&gt;401 : Unauthorized로, 클라이언트는 요청에 대한 응답을 받기 위해 인증이 필요&lt;/li&gt;
+      &lt;li&gt;403 : Forbidden로, 클라이언트는 자원에 접근할 권리가 없음&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;5xx : 서버 에러코드&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;hol-block에-대해-설명해주세요&quot;&gt;HOL Block에 대해 설명해주세요&lt;/h4&gt;
+
+&lt;p&gt;HOL Block는 1.1버전까지 한번에 하나의 파일만 전송이 가능하기 떄문에, 여러 파일을 전송할 때 하나의 선행하는 파일이 늦어지면 전체 파일 전송시간이 늘어나는 문제로 2.0 버전에서 스트림을 통해 한번에 병렬 전송을 통해 이러한 문제를 해결하였다.&lt;/p&gt;
+
+&lt;h4 id=&quot;브라우저에-googlecom을-입력했을-때-어떤일이-발생할까요&quot;&gt;브라우저에 google.com을 입력했을 때 어떤일이 발생할까요?&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;먼저 URL을 분석하여 TLD로 끝나면 요청을 보내고, 아니면 기본 검색 엔진으로 검색을 한다&lt;/li&gt;
+  &lt;li&gt;URL로는 통신을 할 수 없기 때문에 IP주소로 변환해야 한다. 캐시( 크롬 DNS ⇒ hosts )를 확인하고 없으면 DNS를 통해 재귀적으로 (Root ⇒ TLD ⇒ 해당 서버 ) 쿼리를 보내면서 IP주소로 변환한다.&lt;/li&gt;
+  &lt;li&gt;라우터를 통해 해당 서버의 게이트웨이까지 이동합니다.&lt;/li&gt;
+  &lt;li&gt;실질적인 통신을 하기위해서는 물리주소인 MAC주소가 필요하기 때문에 ARP를 통해 IP주소를 MAC 주소로 변환합니다.&lt;/li&gt;
+  &lt;li&gt;대상 서버와 HTTP or HTTPS 연결을 한다음 서버에게 해당 페이지를 달라고 요청하고 서버는 이를 브라우저로 전송합니다&lt;/li&gt;
+  &lt;li&gt;브라우저는 응답을 해석하여 페이지를 사용자에게 보여줍니다.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;쿠키와-세션에-대해말해주세요&quot;&gt;쿠키와 세션에 대해말해주세요&lt;/h4&gt;
+
+&lt;p&gt;쿠키 : 클라이언트에 저장되는 작은 파일로 이름, 값, 옵션 (만료날짜, 경로, httpOnly, Secure 등) 을 저장&lt;/p&gt;
+
+&lt;p&gt;세션 : 같은 사용자로부터 들어오는 요청을 하나의 상태로보고 그 상태를 관리하는 기술&lt;/p&gt;
+
+&lt;p&gt;차이점&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://user-images.githubusercontent.com/46195613/113530886-2cc2d880-9602-11eb-8fbb-5f3c90fa3bf1.png&quot; alt=&quot;https://user-images.githubusercontent.com/46195613/113530886-2cc2d880-9602-11eb-8fbb-5f3c90fa3bf1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;rest-api에-대해-설명해주세요&quot;&gt;REST API에 대해 설명해주세요&lt;/h4&gt;
+
+&lt;h4 id=&quot;jwt에-대해-말해주세요&quot;&gt;JWT에 대해 말해주세요&lt;/h4&gt;
+
+&lt;p&gt;JWT는 Json Web Token으로 Json 포맷을 이용하여 사용자의 정보를 저장하는 claim 기반의 웹토큰이다. 토큰 자체를 정보로 사용하는 self-contained 방식&lt;/p&gt;
+
+&lt;p&gt;HEADER : 타입과 암호화 방식&lt;/p&gt;
+
+&lt;p&gt;PAYLOAD : 토큰의 정보, 클레임 셋이라고 부른다.&lt;/p&gt;
+
+&lt;p&gt;SIGNATURE : 헤더와 페이로드를 합친 문자열에 헤더에 포함된 알고리즘과 비밀키를 통해 생성하고 Base64로 인코딩 한 것&lt;/p&gt;
+
+&lt;p&gt;헤더와 페이로드는 암호화 되지 않기 떄문에, 토큰이 탈취된다면 변조의 위험이 있다. 토큰의 유효성을 검사하기 위해 시그니처를 사용한다.&lt;/p&gt;
+
+&lt;h4 id=&quot;https란&quot;&gt;HTTPS란?&lt;/h4&gt;
+
+&lt;p&gt;HTTP에 SSL/TLS 기반의 Secure Socket를 활용한 프로토콜로 브라우저와 서버가 각각 키를 가지고 있어, 해당 키를 사용해서 암호화/복호화하여 HTTP통신을 하기 때문에 중간에 탈취되어도 키가 없으면 데이터의 내용을 알 수 없다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://user-images.githubusercontent.com/46195613/113530330-b376b600-9600-11eb-90d2-29b96533546e.png&quot; alt=&quot;https://user-images.githubusercontent.com/46195613/113530330-b376b600-9600-11eb-90d2-29b96533546e.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;https-통신-흐름에-대해-설명해주세요&quot;&gt;HTTPS 통신 흐름에 대해 설명해주세요&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;클라이언트가 서버에게 random Data와 암호화 기법 목록을 보낸다.&lt;/li&gt;
+  &lt;li&gt;서버는 서버가 생성한 randomData와 서버가 결정한 함호화 기법, 인증서를 클라이언트에게 보냅니다.&lt;/li&gt;
+  &lt;li&gt;클라이언트는 CA에서 발급한 인증서인지 확인하고, 인증서를 public key로 복호화 합니다.&lt;/li&gt;
+  &lt;li&gt;인증이 되면 클라이언트는 앞서 보내준 random data와 서버가 보내준 random data를 합쳐 생성하고 public key로 암호화 하여 premaster 키를 만듭니다.&lt;/li&gt;
+  &lt;li&gt;이 premaster 키를 서버로 보내고 서버에서는 private key를 통해 복호화 하여 대칭키를 얻을 수 있습니다.&lt;/li&gt;
+  &lt;li&gt;대칭키를 통해 서버와 클라이언트가 통신할 수 있습니다.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;tcp-vs-udp&quot;&gt;TCP vs UDP&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/posts/2021-05-27-01.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;uri-vs-url-vs-urn&quot;&gt;URI vs URL vs URN&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;URI (Uniform Resource Identifier)
+    &lt;ul&gt;
+      &lt;li&gt;자원을 고유하게 식별하고 위치를 지정하는 통합 자원 식별자&lt;/li&gt;
+      &lt;li&gt;인터넷 프로토콜을 명시&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;URL (Uniform Resource Location)
+    &lt;ul&gt;
+      &lt;li&gt;특정 서버의 한 리소스에 대한 구체적인 위치&lt;/li&gt;
+      &lt;li&gt;자원의 위치와 접근 방법을 알려줌&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;URN (Uniform Resource Name)
+    &lt;ul&gt;
+      &lt;li&gt;자원의 위치와 독립적인 이름&lt;/li&gt;
+      &lt;li&gt;URL이 변경되면 기존의 객체를 찾을 수 없다는 URL의 한계를 극복하기 위해 사용&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;cors란&quot;&gt;CORS란?&lt;/h4&gt;
+
+&lt;p&gt;CORS란 다른 Origin과 리소스를 공유하기 위해 사용하는 정책이다. 브라우저는 기본적으로 보안상의 문제로 Same-Origin-Policy를 따른다. 이때 추가적인 HTTP Header을 사용해서 다른 Origin의 리소스에 접근할 수 있게 해주는 정책이다.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;같은 Origin이란?
+Scheme, host, port 가 모두 같을 때만 same-origin이고 하나라도 다를시 cross-origin이다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;html--browser&quot;&gt;HTML / Browser&lt;/h3&gt;
+
+&lt;h4 id=&quot;html-렌더링-과정&quot;&gt;HTML 렌더링 과정&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;DOM, CSSOM 생성
+가장 첫번째 단계는 서버로 부터 받은 HTML, CSS를 연산과 관리가 유리하도록 Object Model로 만들게 된다.&lt;/li&gt;
+  &lt;li&gt;Render Tree 생성
+DOM과 CSSOM으로 Render Tree를 만든다. 스타일 정보가 설정되어 있으며 실제 화면에 표시되는 노드들로만 구성된다.
+head와 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;display: none&lt;/code&gt; 등 화면에 실제 표시되지 않는 노드들을 제외한다.&lt;/li&gt;
+  &lt;li&gt;Layout(reflow)
+브라우저 뷰포트 내에서 각 노드들의 정확한 위치와 크기를 계산한다.&lt;/li&gt;
+  &lt;li&gt;Paint(repaint)
+요소들을 실제 화면에 그린다. 이미 위치와 크기가 계산되어있기 때문에 실제 픽셀값을 채워넣는 과정&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;위의 과정을 통해 우리는 화면을 볼 수 있다.&lt;/p&gt;
+
+&lt;h4 id=&quot;크로스-브라우징이란&quot;&gt;크로스 브라우징이란?&lt;/h4&gt;
+
+&lt;p&gt;웹 페이지 제작 시 모든 브라우저에서 깨지지 않고 의도한 대로 올바르게 나오게 하는 작업. 브라우저마다 렌더링 엔진이 다르기때문에 같은 코드라도 다르게 보일 수 있다.&lt;/p&gt;
+
+&lt;h4 id=&quot;크로스-브라우징-대처-방법&quot;&gt;크로스 브라우징 대처 방법&lt;/h4&gt;
+
+&lt;p&gt;&lt;strong&gt;라이브러리 활용&lt;/strong&gt;
+호환성 이슈를 해결하기 위해 jQuery, polyfill 등과 같은 라이브러리를 사용한다. 그러나 라이브러리의 사이즈가 커질 수 있고, 라이브러리를 관리하는 비용이 발생한다&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;직접 구현&lt;/strong&gt;
+직접 구현시 기능 탐지를 이용한다. 브라우저를 파악해서 분기문을 사용하는것 보다 해당 브라우저에서 기능을 제공하는지에 따라 구현한다.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;reset.css&lt;/strong&gt;
+CSS의 경우 브라우저마다 기본스타일이 제각각이다. 동등한 스타일 적용을 위해 default값을 초기화 시킬 필요가 있기 떄문에 사용한다.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;prefix 명시&lt;/strong&gt;
+브라우저의 엔진을 prefix로 적어준다. 이후 가장 마지막에 접두어가 없는 속성을 추가해준다&lt;/p&gt;
+
+&lt;div class=&quot;language-css highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nc&quot;&gt;.menu&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;-webkit-border-radius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;15px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;-moz-border-radius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;15px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;border-radius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;15px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;doctype란&quot;&gt;doctype란?&lt;/h4&gt;
+
+&lt;p&gt;HTML이 어떤 버전으로 작성되었는지 미리 선언하여, 웹 브라우저가 내용을 올바르게 표시할 수 있도록 해준다.&lt;/p&gt;
+
+&lt;h4 id=&quot;html과-xhtml의-차이점&quot;&gt;HTML과 XHTML의 차이점&lt;/h4&gt;
+
+&lt;p&gt;XHTML은 HTML과 유사하지만, 문법의 적용이 조금 더 엄격한 특징을 가지고 있다.&lt;/p&gt;
+
+&lt;p&gt;XHTML의 doctype를 명시해야하며 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;html&amp;gt;, &amp;lt;head&amp;gt;, &amp;lt;title&amp;gt;, &amp;lt;body&amp;gt;&lt;/code&gt; 태그를 반드시 사용해야한다. 또한 태그는 반드시 순서대로 닫혀야한다.&lt;/p&gt;
+
+&lt;h4 id=&quot;브라우저의-최적화-방법&quot;&gt;브라우저의 최적화 방법&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;HTTP 요청을 최소화 할 수 있는지 분석한다.
+    &lt;ul&gt;
+      &lt;li&gt;이미지 요청수를 분석하고 많다면 CSS 스프라이트를 적용할 수 있는지 검토한다.&lt;/li&gt;
+      &lt;li&gt;HTTP요청에 대해 최적화가 되었다면 캐시 설정을 진행한다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;구성 요소의 크기를 줄인다.
+    &lt;ul&gt;
+      &lt;li&gt;불필요한 공백이나 주석을 제거한다.&lt;/li&gt;
+      &lt;li&gt;압축을 적용해서 파일 크기를 줄인다&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;랜더링 향상을 위해서 다음과 같은 방법을 적용한다.
+    &lt;ul&gt;
+      &lt;li&gt;스타일 시트는 head태그에 자바스크립트 태그는 body의 가장 마지막에 위치시킨다.&lt;/li&gt;
+      &lt;li&gt;한번에 페이지를 보여주기보다 점진적으로 보여주는 방법을 적용한다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Thu, 27 May 2021 10:12:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/interview-2/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/interview-2/</guid>
+        
+        <category>interview</category>
+        
+        <category>network</category>
+        
+        <category>Browser</category>
+        
+        <category>html</category>
+        
+        
+        <category>Interview</category>
+        
+      </item>
+    
+      <item>
+        <title>[Interview] JavaScript/React 면접 예상 질문</title>
+        <description>&lt;p&gt;질문에 대한 답은 주관적으로 저의 생각을 적은 것이기 떄문에 정답이 아닐 수 도 있습니다. 만약 틀린경우 알려주시면 감사하겠습니다.
+질문은 실제 면접에서 받은 질문과 인터넷 검색 등을 통해 제 나름대로 만들어본 질문입니다. 참고 용도로 보시면 좋을 것 같습니다.&lt;/p&gt;
+
+&lt;h3 id=&quot;javascript&quot;&gt;JavaScript&lt;/h3&gt;
+
+&lt;h4 id=&quot;this&quot;&gt;this&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;this 란?&lt;/p&gt;
+
+    &lt;p&gt;this는 일반적으로 메소드를 호출한 객체가 저장된 속성.&lt;/p&gt;
+
+    &lt;p&gt;자신이 속한 객체 또는 자신이 생성할 인스턴트를 가르키는 자기 참조 변수&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;this는 어떻게 결정될까?&lt;/p&gt;
+
+    &lt;p&gt;this는 함수 호출 방식에 따라 동적으로 결정된다.&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;일반 함수 : 전역 객체와 바인딩&lt;/li&gt;
+      &lt;li&gt;메서드 : 메서드를 호출한 객체와 바인딩&lt;/li&gt;
+      &lt;li&gt;생성자 함수 : 함수가 생성할 인스턴스와 바인딩&lt;/li&gt;
+      &lt;li&gt;call,apply,bind : 첫 번째 인수로 전달하는 객체에 바인딩&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;bind / apply / call 의 차이점&lt;/p&gt;
+
+    &lt;p&gt;bind : 함수가 가리키는 this만 바꾸고 호출하지 않음&lt;/p&gt;
+
+    &lt;p&gt;apply : 첫번째 인자로 this값, 두번째 인자로 배열로 함수 호출에 필요한 인자들을 입력하며 함수를 호출&lt;/p&gt;
+
+    &lt;p&gt;call : 첫번째 인자로 this값, 두번째 인자부터 함수 호출에 필요한 인자들을 입력하며 함수를 호출&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;scope&quot;&gt;Scope&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;let와 var차이는?&lt;/p&gt;
+
+    &lt;p&gt;var : 함수레벨 스코프를 따르고 재선언, 재할당이 모두 가능하다, 또한 변수 호이스팅이 발생한다&lt;/p&gt;
+
+    &lt;p&gt;let : 블록레벨 스코프를따르고 재할당은 가능하지만 재 선언은 불가능하다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;렉시컬 스코프란?&lt;/p&gt;
+
+    &lt;p&gt;함수가 선언되는 위치에 따라서 상위 스코프가 결정되는 스코프&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;클로저&quot;&gt;클로저&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;클로저란?&lt;/p&gt;
+
+    &lt;p&gt;내부 함수가 선언되었을 때 외부 스코프를 기억하여 외부함수 밖에서 호출될 때 외부함수의 지역 변수에 접근할 수 있는 함수&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;클로저는 함수를 왜 반환해야할까?&lt;/p&gt;
+
+    &lt;p&gt;함수를 반환해야 스코프 체인을 통해 외부함수의 지역변수에 접근할 수 있다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;클로저를 사용하는 이유는?&lt;/p&gt;
+
+    &lt;p&gt;전역 변수의 남용을 막고 변수값을 은닉하는 용도로 사용할 수 있다.&lt;/p&gt;
+
+    &lt;p&gt;프로젝트에서 싱글톤 패턴을 구현하기할 때 클로저를 사용해서 전역변수의 사용을 막을 수 있었다.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;이벤트루프&quot;&gt;이벤트루프&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;자바스크립트는 싱글스레드인데 어떻게 비동기 처리를 할까?&lt;/p&gt;
+
+    &lt;p&gt;이벤트 루프를 통해 비동기 처리를 할 수 있다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;이벤트루프에 대해 설명해보세요&lt;/p&gt;
+
+    &lt;p&gt;자바스크립트엔진은 메모리힙과 콜 스택으로 구성되어있다.&lt;/p&gt;
+
+    &lt;p&gt;비동기 처리가 들어오면 브라우저에게 이벤트를 요청한 후 스택에서 제거된다. 이후 비동기 처리가 완료되면 테스크 큐에 담기게 된다. 이벤트 루프가 지속적으로 콜 스택을 관찰하며, 콜스택이 비었을 때 테스크 큐의 첫번째 값을 콜 스택에 추가해준다.&lt;/p&gt;
+
+    &lt;p&gt;마이크로 테스크큐 ( promise ) ⇒ 애니메이션 프레임 ( request AnimationFrame API ) ⇒ 테스크큐&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;이벤트-처리&quot;&gt;이벤트 처리&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;이벤트 버블링과 캡처링에 대해 설명해주세요&lt;/p&gt;
+
+    &lt;p&gt;이벤트 버블링은 이벤트가 document 객체를 만날때 까지 상위 요소로 전달되는 것&lt;/p&gt;
+
+    &lt;p&gt;이벤트 캡처링은 이벤트가 document 객체부터 클릭한 객체까지 하위요소로 전달되는 것&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;이벤트 위임이란?&lt;/p&gt;
+
+    &lt;p&gt;이벤트 위임은 버블링을 통해 상위 객체에 이벤트를 등록하여 하위 객체를 제어하는 방식&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;장점
+        &lt;ul&gt;
+          &lt;li&gt;많은 핸들러를 할당하지 않아도 되어 메모리 절약&lt;/li&gt;
+          &lt;li&gt;객체를 추가, 제거시 이벤트 핸들러를 추가, 제거할 필요가 없다&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;단점
+        &lt;ul&gt;
+          &lt;li&gt;이벤트가 반드시 버블링 되어야한다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;preventDefault와 stopPropagation의 차이&lt;/p&gt;
+
+    &lt;p&gt;preventDefault : 기본적으로 정의된 이벤트를 작동하지 못하게 막는 용도 ex) form의 submit&lt;/p&gt;
+
+    &lt;p&gt;stopPropagation : 버블링과 캡처링을 막는 메서드&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;실행-컨텍스트&quot;&gt;실행 컨텍스트&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;실행컨텍스트란?&lt;/p&gt;
+
+    &lt;p&gt;자바스크립트의 scope, hosting, clousre 등의 동작 원리를 담고있는 핵심원리&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;실행 컨텍스트는 어떻게 구성되어있나요?&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;
+        &lt;p&gt;Variable Object ( 변수 객체 )&lt;/p&gt;
+
+        &lt;p&gt;실행에 필요한 여러 정보를 담고있는 객체&lt;/p&gt;
+
+        &lt;p&gt;함수, 변수 등 ( 함수컨텍스트일 경우 매개변수 )&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;스코프 체인&lt;/p&gt;
+
+        &lt;p&gt;일종의 리스트로 중첩된 함수의 스코프 레퍼런스를 차례로 저장한다. 현재 실행컨텍스트의 활성 객체부터 순차적으로 상위 컨텍스트의 활성객체를 가리키며 마지막 리스트는 전역 객체를 가리킨다.&lt;/p&gt;
+
+        &lt;p&gt;현재 스코프, 즉 활성 객체에서 검색해보고 실패하면 스코프 체인에 담긴 순서대로 검색을 이어간다.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;this 값&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;호이스팅&quot;&gt;호이스팅&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;호이스팅이란?&lt;/p&gt;
+
+    &lt;p&gt;호이스팅은 유효스코프의 최 상단으로 선언문을 끌어올리는 것이다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;호이스팅이 발생하는 이유는?&lt;/p&gt;
+
+    &lt;p&gt;var 변수에서는 선언과 초기화가 한번에 일어나기 때문에 발생한다.&lt;/p&gt;
+
+    &lt;p&gt;let 변수도 호이스팅이 발생하지만 초기화가 되지않아 reference Error 이 발생한다.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;자료형&quot;&gt;자료형&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;원시형 데이터와 참조형 데이터의 차이&lt;/p&gt;
+
+    &lt;p&gt;원시형 데이터는 값을 저장하는 타입으로 불변성을 가진다. 원시타입 비교시 값을 비교하지만, 참조 타입은 주소를 참조하고 있으므로, 주소값을 비교대상으로 한다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;undefined와 null의 차이&lt;/p&gt;
+
+    &lt;p&gt;둘 다 값이 없음을 의미&lt;/p&gt;
+
+    &lt;p&gt;undefined : 값이 할당되어 있지 않은 변수, 즉 데이터 타입이자 값&lt;/p&gt;
+
+    &lt;p&gt;null : 명시적으로 값이 비어있음을 나타낸다&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;callback-vs-promise-vs-asyncawait&quot;&gt;Callback vs Promise vs async&amp;amp;await&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;callback&lt;/p&gt;
+
+    &lt;p&gt;비동기 처리 방식 중 하나로 비동기 로직을 처리하기 위해 콜백 함수를 연속적으로 사용할때 콜백 지옥이라는 문제가 발생한다. 콜백안에 콜백함수가 있는 형식으로 가독성이 떨어지고 로직을 변경하기 힘들다. 이를 해결하기 위해 Promise나 Async&amp;amp;Await를 사용한다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Promise&lt;/p&gt;
+
+    &lt;p&gt;자바스크립트 비동기 처리에 사용되는 객체&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Pending : 비동기 처리 로직이 완료되지 않은 상태&lt;/li&gt;
+      &lt;li&gt;Fullfilled : 비동기 처리가 완료되어 Promise가 결과 값을 반환해준 상태&lt;/li&gt;
+      &lt;li&gt;Rejected : 비동기가 실패하거나 오류를 발생한 상태&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Async&amp;amp;Await&lt;/p&gt;
+
+    &lt;p&gt;기존 처리방식인 Callback &amp;amp; Promise의 단점을 보완하고 가독성 높은 코드로 작성 가능&lt;/p&gt;
+
+    &lt;p&gt;함수앞에 async 예약어를 붙이고 비동기 처리 코드앞에 await를 붙인다. 비동기 처리가 Promise 객체를 반환할 때 의도대로 동작한다.&lt;/p&gt;
+
+    &lt;p&gt;예외처리는 try catch 문을 사용&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;webpack과-babel&quot;&gt;webpack과 babel&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;webpack이란&lt;/p&gt;
+
+    &lt;p&gt;자바스크립트의 코드가 많아지면 하나의 파일로 관리하는데 한계가 있다. 그렇다고 여러개의 파일을 두면, 브라우저에서 여러개의 파일을 받아와야해서 네트워크 비용이 증가하게된다.&lt;/p&gt;
+
+    &lt;p&gt;이를 해결하기위해 webpack를 사용한다.&lt;/p&gt;
+
+    &lt;p&gt;Static Module Bundler로 Dependencies Graph를 통해 필요한 형태의 하나, 여러개의 번들로 생성한다.&lt;/p&gt;
+
+    &lt;p&gt;다른 모듈 번들러도 많지만 성능상 우수하다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;bundle란?&lt;/p&gt;
+
+    &lt;p&gt;작동하는데 필요한 모든 것을 포함하는 Package&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;babel이란&lt;/p&gt;
+
+    &lt;p&gt;한마디로 트렌스파일러&lt;/p&gt;
+
+    &lt;p&gt;크로스 브라우징 이슈를 해결하기 위해 만들어짐, EX6+, 타입스크립트, jsx등 다른 언어로 분류되는 언어들에 대해서 모든 브라우저에서 동작할 수 있도록 호환성을 지켜준다&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;es6-추가된-문법&quot;&gt;ES6+ 추가된 문법&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;변수&lt;/p&gt;
+
+    &lt;p&gt;let, const 추가&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Destructuring ( 구조분해할당 )&lt;/p&gt;
+
+    &lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;two&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;three&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;kim&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;age&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;age&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;템플릿 스트링&lt;/p&gt;
+
+    &lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Kim&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;님&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 일반&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;님`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 템플릿 리터럴&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Arrow Function&lt;/p&gt;
+
+    &lt;p&gt;순수하게 함수의 역할을 하며 익명함수로 사용된다. this역시 생성될 당시의 상위 스코프를 따른다&lt;/p&gt;
+
+    &lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;함수 매개변수&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;default 설정 : 기본 값을 설정할 수 있다.&lt;/p&gt;
+
+        &lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Rest : 가변인자를 사용하며 배열로 치환&lt;/p&gt;
+
+        &lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Spread : 인자를 rest로 전달할 수 있다&lt;/p&gt;
+
+        &lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;z&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;z&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(...[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Class&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;for of&lt;/p&gt;
+
+    &lt;p&gt;of로 배열의 값을 가져올 수 있다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;고차함수&lt;/p&gt;
+
+    &lt;p&gt;새로운 배열를 반환하는 함수&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;map&lt;/li&gt;
+      &lt;li&gt;filter&lt;/li&gt;
+      &lt;li&gt;reduce&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Object 할당 문법&lt;/p&gt;
+
+    &lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;obj&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Promise, async&amp;amp;await&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;garbage-collection&quot;&gt;Garbage Collection&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Mark-and-sweep 알고리즘&lt;/p&gt;
+
+    &lt;p&gt;root부터 시작하여 root가 참조하는 Obj, 참조된 Obj가 참조하는 Obj 들을 닿을수 있는 Obj로 표시한다. 표시가 되어있지 않은 Obj에 대해 가비지 콜랙션을 수행한다.&lt;/p&gt;
+
+    &lt;p&gt;순환참조문제를 해결, 대부분에 브라우저에서 사용.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;reference-counting 알고리즘&lt;/p&gt;
+
+    &lt;p&gt;변수를 선언하고 참조 값이 할당되면 참조 카운트가 1이 되고 다른 변수가 같은 값을 참조하면 참조 카운트가 늘어난다. 마찬가지로 해당 값을 참조하는 변수에 다른 값을 할당하면 원래 값의 참조 카운터가 줄어든다. 참조 카운트가 0이되면 가비지컬렉터가 실행될때 메모리를 회수한다&lt;/p&gt;
+
+    &lt;p&gt;순환참조문제 : 서로 참조하고있을 경우 참조카운트가 0이되지 못해서 메모리낭비가 발생한다&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;react&quot;&gt;React&lt;/h3&gt;
+
+&lt;h4 id=&quot;리액트란&quot;&gt;리액트란?&lt;/h4&gt;
+
+&lt;p&gt;프론트엔드 라이브러리로 컴포넌트 기반으로 되어있어 컴포넌트에 데이터를 내려주면 개발자가 설계한대로 UI가 만들어져 사용자에게 보여진다.&lt;/p&gt;
+
+&lt;p&gt;핵심원리로는 Virtual DOM을 사용한다&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Virtual DOM&lt;/p&gt;
+
+    &lt;p&gt;DOM조작이 속도상 느리기 떄문에 VDOM을 사용한다&lt;/p&gt;
+
+    &lt;p&gt;DOM차원에서 더블 버퍼링이라고 생각한다.&lt;/p&gt;
+
+    &lt;p&gt;변화가 발생하면 오프라인 DOM 트리에 적용 ( 실제 렌더링이 되지 않아 연산 비용이 작다) 후 최종적인 변화를 실제 DOM에게 전달한다 ( 모든 변화를 하나로 묶어서 진행, 레이아웃 계산과 렌더링의 규모는 커지지만 한번의 계산으로 연산 횟수를 줄일 수 있다 )&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;비교과정&lt;/p&gt;
+
+    &lt;p&gt;휴리스틱 알고리즘&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;서로다른 타입을 가진 두 엘리먼트는 다른 트리를 만들어낸다.&lt;/li&gt;
+      &lt;li&gt;개발자가 key prop를 통해 자식 엘리먼트의 변경 여부를 표시할 수 있다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;리액트-버전&quot;&gt;리액트 버전&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;프로젝트 진행하면서 리액트 몇 버전을 사용하셨나요?&lt;/p&gt;
+
+    &lt;p&gt;17.0.1버전을 사용했다.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;최신버전이 몇 버전인줄 알고 계신가요?&lt;/p&gt;
+
+        &lt;p&gt;17.0.2&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;최신버전에서 새롭게 추가된 문법에 대해 말해주세요&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;&lt;a href=&quot;https://ko.reactjs.org/versions/&quot;&gt;React version - React Blog&lt;/a&gt;&lt;/p&gt;
+
+    &lt;p&gt;clean up 함수를 비동기로 처리&lt;/p&gt;
+
+    &lt;p&gt;document 수준에서 이벤트 핸들러를 연결하지 않고 렌더링 되는 루트노드 컨테이너에 첨부한다.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;리액트-hooks&quot;&gt;리액트 hooks&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;useEffect에 대해 설명해주세요&lt;/p&gt;
+
+    &lt;p&gt;컴포넌트가 렌더링 될 때마다 특정 작업을 실행할 수 있도록 해주는 Hooks&lt;/p&gt;
+
+    &lt;p&gt;의존 배열을 입력받아 해당 값이 변경되었을 때 실행, 의존배열이 없다면 리렌더링시 항상 실행&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;useEffect는 어떤 라이프 사이클에 해당하나요?&lt;/p&gt;
+
+    &lt;p&gt;componentDidMount, componentDidUpdate, componentWillUnmount&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;react 라이프 사이클에대해 말해주세요&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog.kakaocdn.net/dn/w3ych/btqAQOjLtoN/R0EdkXLZBJ2qr2As5TKTt0/img.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;cleanup 함수에 대해 말해주세요&lt;/p&gt;
+
+    &lt;p&gt;useEffect에서 return하는 함수&lt;/p&gt;
+
+    &lt;p&gt;컴포넌트의 unmount 이전, update 직전에 어떤 작업을 수행하고 싶을 때 cleanup를 반환해준다.&lt;/p&gt;
+
+    &lt;p&gt;정리가 필요한 side-effect를 해결하기 위해 사용한다.&lt;/p&gt;
+
+    &lt;p&gt;ex) 구독을 해제할때 사용한다.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;컴포넌트&quot;&gt;컴포넌트&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;클래스형과 함수형 컴포넌트의 차이점에 대해 말해주세요&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;클래스형
+        &lt;ul&gt;
+          &lt;li&gt;state, lifeCycle 관련 기능사용 가능하다.&lt;/li&gt;
+          &lt;li&gt;메모리 자원을 함수형 컴포넌트보다 조금 더 사용한다.&lt;/li&gt;
+          &lt;li&gt;임의 메서드를 정의할 수 있다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;함수형
+        &lt;ul&gt;
+          &lt;li&gt;state, lifeCycle 관련 기능사용 불가능[ hook를 통해 해결 ]&lt;/li&gt;
+          &lt;li&gt;메모리 자원을 클래스형 컴포넌트보다 덜 사용한다.&lt;/li&gt;
+          &lt;li&gt;컴포넌트 선언이 편하다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;고차 컴포넌트에 대해 말해주세요&lt;/p&gt;
+
+    &lt;p&gt;컴포넌트 로직을 재사용하기 위한 react의 기술로 컴포넌트를 취하여 새로운 컴포넌트를 반환하는 함수&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;상태관리&quot;&gt;상태관리&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;state와 props에 대해 말해주세요&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;state : 컴포넌트의 상태로 변할 수 있는 값, 컴포넌트 내부에서선언되고 관리된다.&lt;/li&gt;
+      &lt;li&gt;props : 부모 컴포넌트로 받은 값으로 변경할 수 없는 읽기 전용의 값.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;프로젝트에서 어떻게 상태관리를 했는지 말해주세요&lt;/p&gt;
+
+    &lt;p&gt;저는 contextAPI를 통해 상태관리를 하고, graphQL을 사용했을 때는 apollo-client, swr의 캐시를 통해서 상태관리를 했습니다.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;키&quot;&gt;키&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;리액트 키에 대해 설명해주세요&lt;/p&gt;
+
+    &lt;p&gt;키값을 통해 가상돔은 리스트의 값을 구분한다&lt;/p&gt;
+
+    &lt;p&gt;인덱스를 키값으로 설정했을 때, 배열 뒤쪽에 순차적으로 데이터가 추가된다면 문제가 발생하지 않지만, 앞쪽에 추가될 경우 키값이 모두 변경되어 리스트 전체가 다시 렌더링된다&lt;/p&gt;
+
+    &lt;p&gt;키값에 유니크한 값을 부여해서 불필요한 렌더링을 막을 수 있다&lt;/p&gt;
+
+    &lt;p&gt;키값은 하나의 리스트 내에서만 유일하면 된다&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;spa&quot;&gt;SPA&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;SPA에 대해 설명해주세요&lt;/p&gt;
+
+    &lt;p&gt;단일 페이지 애플리케이션으로 모던 웹의 패러다임이다. 기본적으로 단일 페이지로 구성된다. 기본적으로 필요한 모든 정적 리소스를 최초에 한번 다운로드하고, 이후에는 패이제 갱신에 필요한 데이터만 받아 페이지를 갱신하므로 전체적인 트래픽을 감소시킬 수 있다. 또한 전체 페이지를 다시 렌더링 하지않고 변경되는 부분만 갱신하므로 좋은 사용자 경험을 제공할 수 있다.&lt;/p&gt;
+
+    &lt;p&gt;그러나 초기에 모든 리소스를 다운받기 위해 초기 구동속도가 느리고 SEO 문제가 발생한다&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Wed, 26 May 2021 12:20:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/js-react-interview/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/js-react-interview/</guid>
+        
+        <category>interview</category>
+        
+        <category>javascript</category>
+        
+        <category>react</category>
+        
+        
+        <category>Interview</category>
+        
+      </item>
+    
+      <item>
+        <title>[ToyProject] 카카오톡 클론 프로젝트(4)</title>
+        <description>&lt;p&gt;오늘은 회원가입 부분을 완료하려고 했지만 면접 준비를 조금 해야 될 것 같아서 회원가입 페이지 UI만 만들어 보았다.&lt;/p&gt;
+
+&lt;h3 id=&quot;여러개-input창-관리&quot;&gt;여러개 input창 관리&lt;/h3&gt;
+
+&lt;p&gt;여러개의 input창을 관리하기 위해서 여러개의 useState를 사용했는데, 구글에 검색해보니 이 방법은 좋은 방법이 아니라고해서, &lt;a href=&quot;https://react.vlpt.us/basic/09-multiple-inputs.html&quot;&gt;blog&lt;/a&gt;를 보고 수정했다.&lt;/p&gt;
+
+&lt;p&gt;하나의 useState안에 객체로 값을 저장하고, 각 input 태그에 name을 주고 event.target에서 name와 value를 통해 객체를 업데이트 시켜주는 방법이였다&lt;/p&gt;
+
+&lt;div class=&quot;language-tsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;setInputs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;pwd&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;onChange&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ChangeEvent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;HTMLInputElement&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;setInputs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onChange&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onChange&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'pwd'&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onChange&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onChange&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;&amp;lt;/&amp;gt;&lt;/span&gt;
+  )
+}
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;위와 같은 방법으로 하나의 useState를 사용해서 여러개의 input창을 관리할 수 있었다. 로그인 페이지도 위와 같은 방법으로 변경해 봐야겠다.&lt;/p&gt;
+
+&lt;h3 id=&quot;global-style&quot;&gt;Global Style&lt;/h3&gt;
+
+&lt;p&gt;media쿼리를 사용해서 일정 크기 이상일때 최대 크기를 설정해 주었지만, 좌측 상단에 붙어있어 이 부분이 마음에 들지 않았다. 블로그를 찾아보니 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;transform&lt;/code&gt;를 사용해서 가운데 정렬하는 방법이 있었고 이를 적용했다&lt;/p&gt;
+
+&lt;div class=&quot;language-css highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nt&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;absolute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;top&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;left&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;transform&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;translate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-50&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%,&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-50&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%);&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;story-book&quot;&gt;story book&lt;/h3&gt;
+
+&lt;p&gt;스토리북을 사용해서 각 컴포넌트를 생성하니 변경된 내용을 바로바로 확인할 수 있어서 편리했다. 그러나 전역 css를 설정하는 방법을 찾아보지 못해 전체 화면에 맞춰서 나오긴 하지만 어떻게 컴포넌트가 생겼는지(?)를 보면서 수정할 수 있어서 편리한 것 같았다.&lt;/p&gt;
+
+&lt;div class=&quot;language-tsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;c1&quot;&gt;// SignUp/index.stories.tsx&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;React&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;react&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;SignUp&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;./index&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;SignUp/SignUpPage&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;component&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;SignUp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Default&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SignUp&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;위와 같이 간단하게 title과 컴포넌트만 설정하면 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://localhost:6006&lt;/code&gt;에서 확인할 수 있다.&lt;/p&gt;
+
+&lt;h3 id=&quot;회원가입-페이지-ui&quot;&gt;회원가입 페이지 UI&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/posts/kakao03.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Tue, 25 May 2021 06:21:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/kakao-clone-4/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/kakao-clone-4/</guid>
+        
+        <category>typescript</category>
+        
+        <category>next.js</category>
+        
+        <category>emotion</category>
+        
+        
+        <category>Development</category>
+        
+        <category>Clone</category>
+        
+      </item>
+    
+      <item>
+        <title>[JavaScript] 실행 컨텍스트</title>
+        <description>&lt;h3 id=&quot;실행-컨텍스트&quot;&gt;실행 컨텍스트&lt;/h3&gt;
+
+&lt;h4 id=&quot;실행-컨텍스트란&quot;&gt;실행 컨텍스트란?&lt;/h4&gt;
+
+&lt;p&gt;실행 컨텍스트는 scope, hosting, this, function, closure 등 동작원리를 담고 있는 자바스크립트의 핵심원리이다.&lt;/p&gt;
+
+&lt;p&gt;ECMAScript 스펙에 따르면 실행 가능한 코드를 형상화하고 구분하는 추상적인 개념으로, 실행 가능한 코드가 실행되기 위해 필요한 환경이라고 할 수 있다.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;실행 가능한 코드&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;전역 코드 : 전역 영역에 존재하는 코드&lt;/li&gt;
+  &lt;li&gt;Eval 코드 : eval 함수로 실행되는 코드&lt;/li&gt;
+  &lt;li&gt;함수 코드 : 함수 내에 존재하는 코드&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;일반적으로 실행 가능한 코드는 전역 코드와 함수 내 코드이다.&lt;/p&gt;
+
+&lt;p&gt;자바스크립트 엔진은 실행에 필요한 아래와 같은 정보들을 알고 있어야 한다.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;변수 : 전역, 지역, 매개, 객체의 프로퍼티&lt;/li&gt;
+  &lt;li&gt;함수 선언&lt;/li&gt;
+  &lt;li&gt;변수의 유효범위&lt;/li&gt;
+  &lt;li&gt;this&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;이와 같은 정보들을 자바스크립트 엔진은 실행 컨텍스트를 물리적 객체의 형태로 관리한다.&lt;/p&gt;
+
+&lt;h4 id=&quot;실행-컨텍스트의-3가지-객체&quot;&gt;실행 컨텍스트의 3가지 객체&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Variable Object(VO / 변수객체)&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;실행 컨택스트가 생성되면 실행에 필요한 여러 정보를 담은 객체를 생성한다. 이를 Variable Object라고 하며 아래의 정보를 가지고 있다.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;변수&lt;/li&gt;
+      &lt;li&gt;매개변수, 인수정보&lt;/li&gt;
+      &lt;li&gt;함수선언&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;VO는 실행 컨텍스트의 프로퍼티라서 값을 갖는데 상황에 따라 다른 값을 가리킨다.
+전역코드와 함수 코드의 내용이 다르기 때문이다.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;&lt;strong&gt;전역 컨텍스트&lt;/strong&gt;
+VO는 유일하며 최상위에 위치하고 모든 전역변수, 전역 함수등을 포함하는 전역 객체를 가리킨다. 전역 객체는 전역에 선언된 전역 변수와 전역 함수를 프로퍼티로 소유한다&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;&lt;strong&gt;함수 컨텍스트&lt;/strong&gt;
+VO는 Activation Object(활성객체)를 가리키며 매개변수와 인수들의 정보를 배열의 형태로 담고 있는 객체인 argument object가 추가된다&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Scope Chain (SC)&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;스코프체인은 일종의 리스트로, 전역 객체와 중첩된 함수 스코프의 레퍼런스를 차례로 저장하고 있다. 현재 실행 컨텍스트의 활성객체부터 순차적으로 상위 컨텍스트의 활성 객체를 가리키며 마지막은 전역 객체를 가리킨다.&lt;/p&gt;
+
+    &lt;p&gt;엔진은 스코프체인을 통해 렉시컬 스코프를 파악한다. 함수 실행중에 변수를 만나면 현재 Scope, 즉 활성객체에서 검색해보고 실패시 스코프 체인에 담긴 순서대로 검색을 이어나가면서 찾는다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;this value&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;this 프로퍼티에는 this 값이 할당된다. this는 함수를 호출할 때 함수가 어떻게 호출되었는지에 따라 동적으로 결정된다.&lt;/p&gt;
+
+    &lt;p&gt;this가 어떻게 결정되는지에 대해서는 다음에 자세히 포스팅 할 예정이다.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;실행-컨텍스트의-생성-과정&quot;&gt;실행 컨텍스트의 생성 과정&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;스코프 체인의 생성과 초기화&lt;/p&gt;
+
+    &lt;p&gt;스코프 체인은 전역 객체의 레퍼런스를 포함하는 리스트가 된다&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Variable Instantiation 실행&lt;/p&gt;
+
+    &lt;p&gt;Variable Instantiation는 VO에 프로퍼티와 값을 추가하는 것을 의미&lt;/p&gt;
+
+    &lt;p&gt;변수, 매개변수 인수정보 함수선언을 VO에 추가하여 객체화&lt;/p&gt;
+
+    &lt;p&gt;전역 코드의 경우 VO = GO&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;매개변수가 VO의 프로퍼티로 인수가 값으로 설정된다&lt;/li&gt;
+      &lt;li&gt;대상 코드 내의 함수 선언을 대상으로 함수명이 VO의 프로퍼티로 생성된 함수 객체가 값으로 설정된다 ( 함수 호이스팅 )&lt;/li&gt;
+      &lt;li&gt;대상 코드내의 변수 선언을 대상으로 변수명이 VO프로퍼티, undefined가 값으로 설정 ( 변수 호이스팅 )&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;p&gt;생성된 함수 객체는 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[[scope]]&lt;/code&gt; 라는 프로퍼티를 갖게 된다. 이는 함수가 소유하는 내부 프로퍼티로써 함수 객체가 실행되는 환경을 가리킨다. 현재 실행 컨텍스트의 스코프 체인이 참조하고 있는 겍체를 값으로 설정, 내부 함수의 scope프로퍼티는 자신의 실행 환경과 자신을 포함하는 외부 함수의 실행 환경과 객체를 가르키는데 이때 자신을 포함하는 외부 함수의 실행 컨텍스트가 소멸해도 scope가 가리키는 외부 함수 환경은 소멸하지 않고 참조할 수 있다 ⇒ 클로저&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;this value 결정&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Mon, 24 May 2021 12:35:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/js-exec-context/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/js-exec-context/</guid>
+        
+        <category>javascript</category>
+        
+        
+        <category>Study</category>
+        
+        <category>JavaScript</category>
+        
+      </item>
+    
+      <item>
+        <title>[ToyProject] 카카오톡 클론 프로젝트(3)</title>
+        <description>&lt;p&gt;오늘은 로그인 페이지 UI와 로그인 API를 구현해 보았다.&lt;/p&gt;
+
+&lt;h3 id=&quot;로그인-페이지-ui&quot;&gt;로그인 페이지 UI&lt;/h3&gt;
+
+&lt;p&gt;먼저 로그인 페이지 UI를 구현해 보았다. 처음 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;emotion&lt;/code&gt;을 사용하는데 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;emotion/styled&lt;/code&gt;를 사용하니 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;styled-components&lt;/code&gt;를 사용하는 것과 같은 방식으로 사용하면 되어서 어려운 점은 없었다.&lt;/p&gt;
+
+&lt;p&gt;이메일과 비밀번호를 입력받을 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;input&lt;/code&gt;창과 로그인 버튼을 하나의 컴포넌트로 만들고, 카카오톡 로고를 하나의 컴포넌트로 만들어 두개를 합쳐 로그인 페이지를 만들었다. input창을 만들 때 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;useState&lt;/code&gt;와 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;useRef&lt;/code&gt;중 뭘 사용해야 더 좋을지 몰라서 일단 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;useState&lt;/code&gt;로 하고 조금 찾아본 다음에 더 좋은 방법을 선택해야겠다.&lt;/p&gt;
+
+&lt;p&gt;내가 만든 로그인 페이지 UI는 다음과 같다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/posts/kakao02.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;golbal-theme&quot;&gt;golbal Theme&lt;/h3&gt;
+
+&lt;p&gt;모바일 환경에 맞게 UI를 작성하기 위해 global Theme를 설정하였다. 미디어 쿼리를 설정해서 화면 크기가 일정 크기 이상일때 max-width, max-height를 설정해 줘서 모바일 크기로 보여주었다.&lt;/p&gt;
+
+&lt;h3 id=&quot;apollo-client&quot;&gt;Apollo Client&lt;/h3&gt;
+
+&lt;p&gt;로그인 요청을 보내기 위해 apollo client를 사용했다. 싱글톤 패턴을 사용하기 위해 클로저를 사용해서 전역변수 사용을 피했다. 아직 캐시 정책에 대해서는 설정하지 못했다. 프론트와 백엔드를 다른 포트를 사용하기 위해 cors 설정을 해주었고 cookie로 jwt를 저장하기 위해 credentials를 include로 설정해주었다. credentials가 includes이면 origin에 *(wild card)를 사용할 수 없어 정확한 서버 주소를 적어두었다. 이후 dotenv를 사용해서 하드코딩 된 부분을 리팩토링 해야겠다.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;apolloClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ApolloClient&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;NormalizedCacheObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;apolloClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;apolloClient&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ApolloClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;InMemoryCache&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({}),&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;createHttpLink&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+          &lt;span class=&quot;na&quot;&gt;uri&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://localhost:4000/graphql&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+          &lt;span class=&quot;na&quot;&gt;credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;include&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}),&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;apolloClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})();&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;authprovider&quot;&gt;authProvider&lt;/h3&gt;
+
+&lt;p&gt;사용자가 로그인했는지 확인하기위해 authProvider을 구현했다. 현재 내정보를 받아오는 요청을 서버로 보내고 해당 요청이 에러가 발생하거나 해당 요청의 pathname에 login 또는 callback가 있을 경우 login 페이지로 보내주었고, 아닐경우 children을 표시해 주었다.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;AuthProvider&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;FunctionComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;children&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;router&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;useRouter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;useQuery&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;GET_MYINFO&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;router&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;pathname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;includes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;login&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;router&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;pathname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;includes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;callback&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;children&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;;
+&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;children&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;;
+&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;router&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/login&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loading&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/div&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;storybook&quot;&gt;Storybook&lt;/h3&gt;
+
+&lt;p&gt;컴포넌트를 만든 다음 스토리북을 만들어 보았는데 잘 되지 않았다. input컴포넌트 내에서 useMutation을 통해 서버로 요청을 보내는데 이 부분이 있으니 스토리북이 생성되지 않았다. 추후 찾아봐야겠다. 또한 요청 보내는 부분을 제외하고 생성하면 잘 생성이 되었지만, globalStyle는 적용되지 않아 storybook설정을 한번 공부해 봐야될 것 같다.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;로그인 페이지를 만들어서 이제 로그인 API를 구현해보았다. Nest.JS가 익숙하지 않아 간단한 API를 만드는데 조금 애를 먹었다.&lt;/p&gt;
+
+&lt;h3 id=&quot;mongodb-연동&quot;&gt;MongoDB 연동&lt;/h3&gt;
+
+&lt;p&gt;먼저 DB에서 데이터를 받아오기위해 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@nestjs/mongoose mongoose&lt;/code&gt;를 다운받아주었다. 이후 app.module에 MongooseModule를 추가해주므로 MongoDB와 서버를 연결할 수 있었다.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;p&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;imports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;MongooseModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;forRoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;mongodb://localhost:27017/kakao-clone&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;useNewUrlParser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;useCreateIndex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;useUnifiedTopology&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;useFindAndModify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}),&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;로그인-api&quot;&gt;로그인 API&lt;/h4&gt;
+
+&lt;p&gt;사용자가 가지고 있어야 할 정보들을 model로 정의하고 graphQL을 사용하기 때문에 resolver을 작성하였다. resolver에서 service에 정의한 함수들을 받아와서 로그인 처리를 해주었다. 로그인은 쿠키에 jwt를 담아 보내주었다. 함수로 많이 작성하다가 class로 작성하니 조금 어색했다.&lt;/p&gt;
+
+&lt;p&gt;쿠키의 옵션은 httpOnly와 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sameSite: strict&lt;/code&gt; 두가지 속성을 주었다. 쿠키로 인증한 이유는 Next.js ( 프론트 ) 에서 데이터를 프리패치를 위해 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getServerSideProps&lt;/code&gt;를 사용할 경우 localStorage에 저장한다면 서버단에서 브라우저의 localStorage에 접근할 수 없기 때문에 쿠키를 사용해서 사용자 인증 정보를 클라이언트에게 주었다. 이후 accessToken과 refreshToken으로 나누는 작업을 해 볼 예정이다.&lt;/p&gt;
+
+&lt;h4 id=&quot;directive&quot;&gt;Directive&lt;/h4&gt;
+
+&lt;p&gt;이전 프로젝트에서 로그인한 사용자를 구분하기위해서 각 리졸버마다 중복적인 확인 로직을 작성해야 했지만, Directive를 사용해서 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Directive('@auth)&lt;/code&gt;를 적는것 만으로도 구분할 수 있었다.
+나는 간단하게 사용자 권한만 인증하면 되기 때문에 쿠키의 jwt토큰을 verify해서 그 정보를 context로 넘겨주고 정보가 없다면 ‘Not Authenticated’ 에러를 발생시켜주었다&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;AuthDirective&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;SchemaDirectiveVisitor&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;visitFieldDefinition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;GraphQLField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kr&quot;&gt;any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;any&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;resolve&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;defaultFieldResolver&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;resolve&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(...&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;authUser&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;authUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;not Authenticated&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;trouble-shooting&quot;&gt;Trouble Shooting&lt;/h3&gt;
+
+&lt;p&gt;jwt 인증을 구현하는 부분에서 아래처럼 jsonwebtoken을 불러와서 사용했는데 sign property가 undefined라는 에러가 발생했다. nestjs의 문제인지 어디의 문제인지는 잘 모르겠다. 두번째 처럼 사용하니 잘 작동했다.
+어디서 생긴 문제인지 잘 찾아봐야 겠다.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;jwt&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;jsonwebtoken&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Error&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;jwt&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;jsonwebtoken&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 정상적 작동&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;오늘 처음 Nest.js로 코드를 작성해보았는데 작동은 되는데 잘 만든지는 잘 모르겠다. 내일은 회원가입 페이지와 회원가입 API를 만들어봐야겠다.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 24 May 2021 06:21:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/kakao-clone-3/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/kakao-clone-3/</guid>
+        
+        <category>nest.js</category>
+        
+        <category>typescript</category>
+        
+        <category>eslint</category>
+        
+        <category>preitter</category>
+        
+        <category>next.js</category>
+        
+        <category>emotion</category>
+        
+        <category>apollo-client</category>
+        
+        
+        <category>Development</category>
+        
+        <category>Clone</category>
+        
+      </item>
+    
+      <item>
+        <title>[ToyProject] 카카오톡 클론 프로젝트(2)</title>
+        <description>&lt;p&gt;어제는 NEXT.js 프로젝트 설정을 했고, 오늘은 프로젝트 기획서, 백로그 등 필요한 문서를 위키에 작성한 다음 Nest.js로 백엔드 프로젝트 설정을 할 예정이다.&lt;/p&gt;
+
+&lt;h4 id=&quot;기획서&quot;&gt;&lt;a href=&quot;https://docs.google.com/presentation/d/1PpMcuZd5_NfjpeEjk90Rl5pGh5cBW3BX7smSf0SfokQ/edit#slide=id.p&quot;&gt;기획서&lt;/a&gt;&lt;/h4&gt;
+
+&lt;h4 id=&quot;fe-백로그&quot;&gt;&lt;a href=&quot;https://docs.google.com/spreadsheets/d/19uztnVysspHbs35yHtFKBOM2y2NvHStcSP436vmRdkk/edit#gid=0&quot;&gt;FE-백로그&lt;/a&gt;&lt;/h4&gt;
+
+&lt;h4 id=&quot;be-백로그&quot;&gt;&lt;a href=&quot;https://docs.google.com/spreadsheets/d/19uztnVysspHbs35yHtFKBOM2y2NvHStcSP436vmRdkk/edit#gid=1110456911&quot;&gt;BE-백로그&lt;/a&gt;&lt;/h4&gt;
+
+&lt;h3 id=&quot;nestjs&quot;&gt;NestJS&lt;/h3&gt;
+
+&lt;p&gt;NestJS는 express 기반으로 제작되었으며, node.js에 백엔드를 구성할 수 있도록 해준다. 기본적으로 typescript를 지원한다. 타입스크립트를 기본적으로 지원하기 때문에 NextJS를 선택하였으며, express말고 다른 프레임 워크를 사용해 보고싶었기 때문에 NestJS를 사용하기로 마음 먹었다.&lt;/p&gt;
+
+&lt;p&gt;실제 프로젝트에 적용하기 위해서는 조금 더 공부를 많이 해봐야 할 것 같다.&lt;/p&gt;
+
+&lt;h3 id=&quot;환경-설정&quot;&gt;환경 설정&lt;/h3&gt;
+
+&lt;h4 id=&quot;nestjs-프로젝트-생성&quot;&gt;NestJS 프로젝트 생성&lt;/h4&gt;
+
+&lt;p&gt;먼저 아래의 명령어를 통해 nestjs cli를 전역으로 설치해준다.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-cmd&quot;&gt;npm i -g @nestjs/cli
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;이후 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nest new project-name&lt;/code&gt; 명령어를 통해 nestjs 프로젝트를 생성해준다.
+프로젝트가 생성되면 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm run start&lt;/code&gt;명령어를 사용하면 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Hello world!&lt;/code&gt; 메시지가 표시된다.&lt;/p&gt;
+
+&lt;p&gt;이렇게 초기 프로젝트 세팅을 마칠수 있었다. 보일러플레이트가 잘 되어있어 eslint, prettier 등의 설정이 자동으로 되었다.필요한 세팅값만 조금씩 바꿔 주면 될 것 같다.&lt;/p&gt;
+
+&lt;h4 id=&quot;graphql&quot;&gt;GraphQL&lt;/h4&gt;
+
+&lt;p&gt;생각보다 NestJS의 설정이 빨리 끝나서 GraphQL을 사용하기 위한 기초 설정까지 해봐야겠다.&lt;/p&gt;
+
+&lt;p&gt;먼저 아래의 명령어를 통해 필요한 패키지들을 설치해준다. 참고로 공식 문서를 보고 따라해 보았다.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-cmd&quot;&gt;npm i @nestjs/graphql graphql-tools graphql apollo-server-express
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;설치를 하고나서 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;src/app.module.ts&lt;/code&gt;에 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GraphQLModule&lt;/code&gt; 을 추가해준다.&lt;/p&gt;
+
+&lt;p&gt;UserModule는 playGround를 테스트해보기 위해서 임의의 데이터 구조와 더미데이터를 반환하게 임시적으로 만들어 보았다.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;c1&quot;&gt;// app.module.ts&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;@nestjs/common&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;GraphQLModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;@nestjs/graphql&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;UserModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;./user/user.module&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;imports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;UserModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;GraphQLModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;forRoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;installSubscriptionHandlers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;autoSchemaFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}),&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;자세한 내용은 제 &lt;a href=&quot;https://github.com/joojaewoo/kakao-talk-clone&quot;&gt;깃 허브&lt;/a&gt; PR과 코드를 보시면 될 것 같습니다!&lt;/p&gt;
+
+&lt;p&gt;필요한 문서에 대한 작업이 오래걸리고 NestJS를 처음 사용해 봐서 조금 시간이 많이 소요됬다.&lt;/p&gt;
+
+&lt;p&gt;내일은 빨리 DB 스키마를 완성하고 로그인 페이지 UI 작업을 시작해야겠다!&lt;/p&gt;
+</description>
+        <pubDate>Sun, 23 May 2021 11:21:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/kakao-clone-2/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/kakao-clone-2/</guid>
+        
+        <category>nest.js</category>
+        
+        <category>typescript</category>
+        
+        <category>eslint</category>
+        
+        <category>preitter</category>
+        
+        
+        <category>Development</category>
+        
+        <category>Clone</category>
+        
+      </item>
+    
+      <item>
+        <title>[ToyProject] 카카오톡 클론 프로젝트(1)</title>
+        <description>&lt;p&gt;이전부터 소켓통신으로 프로젝트를 하나 진행해보고 싶다는 생각을 하고있어서 카카오톡 클론 프로젝트를 진행하기로 했다.&lt;/p&gt;
+
+&lt;p&gt;오늘은 프론트엔드 선택한 기술에 대한 이유와 간단한 환경 설정에 대해서 포스팅하려고 한다.&lt;/p&gt;
+
+&lt;h3 id=&quot;개발-스택&quot;&gt;개발 스택&lt;/h3&gt;
+
+&lt;p&gt;현재 프론트엔드 개발 스택은 NEXT.js, emotion, storyBook, Apollo-Client를 사용하는 것으로 결정했다. 이전에 프로젝트를 하면서 사용해본 기술스택을 사용해보고, 추후 다른 기술 스택을 사용해서 변경해볼 예정이다.&lt;/p&gt;
+
+&lt;p&gt;백엔드는 Nest와 GraphQL을 사용하고 db로는 MongoDB를 사용할 예정이다&lt;/p&gt;
+
+&lt;p&gt;언어는 공통적으로 TypeScript를 사용하기로 결정했다.&lt;/p&gt;
+
+&lt;h3 id=&quot;nextjs&quot;&gt;NEXT.js&lt;/h3&gt;
+
+&lt;p&gt;NEXT.js를 이전 프로젝트에서도 사용해보았는데 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Zero Config&lt;/code&gt;를 통해서 웹펙, 바벨등 기본 설정 없이도 프로젝트를 실행시킬 수 있었다. 아마 나중에 alias나 dotenv를 사용하기 위해서는 웹펙 설정을 커스텀할 예정이다. page 라우팅이 직관적이여서 사용하기 편리했으며, SSR 프레임워크이므로 검색엔진에 최적화 되있다. 코드스플리팅도 자동으로 해줘서 프로젝트를 처음 시작할때 다른 설정 없이 빠르게 프로젝트를 진행할 수 있어서 Next.js를 사용하기로 결정했다. 프로젝트가 완성되고 나면 다른 프레임워크를 사용해서 프론트엔드를 만들어 볼 예정이다.&lt;/p&gt;
+
+&lt;h3 id=&quot;emotion&quot;&gt;emotion&lt;/h3&gt;
+
+&lt;p&gt;CSS-in-JS를 사용해보면서 컴포넌트를 재사용 할 수 있었으며, 프리픽스가 자동으로 생성되었다. 또한 className이 자동으로 부여되기 때문에 스타일이 겹칠 염려가 없으며 props에 따라 스타일 지정이 가능했다. 이전 프로젝트에서 styled-components를 사용해봐서 이번 프로젝트에서 emotion을 사용하기로 결정했다.&lt;/p&gt;
+
+&lt;h3 id=&quot;storybook&quot;&gt;StoryBook&lt;/h3&gt;
+
+&lt;p&gt;독립된 환경에서 각각의 컴포넌트들을 개발하고 이를 확인하기 위해서 사용한다. 또한, 각종 addon을 설치해서 최소한의 기능들을 사용할 수 있다.
+UI 테스트르 해본적이 한번도 없어 이번 기회에 snapshot 테스트를 storybook를 사용해서 해 볼 예정이다.&lt;/p&gt;
+
+&lt;h3 id=&quot;환경-설정&quot;&gt;환경 설정&lt;/h3&gt;
+
+&lt;h4 id=&quot;next-프로젝트-생성&quot;&gt;NEXT 프로젝트 생성&lt;/h4&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npx create-next-app&lt;/code&gt; 명령어를 통해 NEXT js 프로젝트를 생성한다.&lt;/p&gt;
+
+&lt;p&gt;이후 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm run dev&lt;/code&gt;명령어를 통해 dev서버를 실행하고 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://127.0.0.1:300&lt;/code&gt;에 접속하면 아래와 같은 결과물을 볼 수 있다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/posts/kakao01.png&quot; alt=&quot;next&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;이렇게 하면 기본적인 NEXT 프로젝트 생성이 완료되었다.&lt;/p&gt;
+
+&lt;h4 id=&quot;typescript-설정하기&quot;&gt;TypeScript 설정하기&lt;/h4&gt;
+
+&lt;p&gt;TypeScript를 적용하기 위해서 아래의 패키지를 설치해준다.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-cmd&quot;&gt;npm i -D typescript @types/react @types/node
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;설치가 완료되면 pages폴더에 있는 파일들의 확장자를 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tsx&lt;/code&gt;로 바꿔준다.&lt;/p&gt;
+
+&lt;p&gt;이후 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm run dev&lt;/code&gt; 명령어를 통해 프로젝트를 다시 실행시키면 프로젝트 내부에 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tsconfig.json&lt;/code&gt; 파일과 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;next-env.d.ts&lt;/code&gt;파일이 자동적으로 생성되면서 실행된다.&lt;/p&gt;
+
+&lt;p&gt;이것으로 NEXT JS에 타입스크립트 적용이 완료되었다.&lt;/p&gt;
+
+&lt;h4 id=&quot;eslint-와-prettier-설정&quot;&gt;eslint 와 prettier 설정&lt;/h4&gt;
+
+&lt;p&gt;프로젝트에 eslint와 prettier을 이제 설정해보자.&lt;/p&gt;
+
+&lt;p&gt;아래와 같이 필요한 플러그인들을 설치해주자.
+airbnb 규칙을 사용할것이기 때문에 airbnb를 패키지에 추가했다.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-cmd&quot;&gt;npm i -D @typescript-eslint/eslint-plugin typescript-eslint/parser eslint eslint-config-airbnb eslint-config-prettier eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-react eslint-plugin-react-hooks prettier
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;이후 루트 디렉토리에 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.eslintrc&lt;/code&gt;파일과 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.prettierrc&lt;/code&gt;파일을 생성해주자.&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.eslintrc&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;parser&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;@typescript-eslint/parser&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;타입스크립트의&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;구문&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;해석을&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;위해&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;사용&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;extends&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;airbnb&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;prettier&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;airbnb&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;규칙&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;prettier사용&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;env&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;browser&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;node&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;사전&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;정의된&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;전역&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;변수&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;사용을&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;정의&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;browser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;설정하지&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;않으면&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;같은&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;static&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;메서드를&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;인식할&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;수&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;없다.&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;plugins&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;@typescript-eslint&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;react-hooks&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;prettier&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;rules&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;규칙을&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;직접&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;수정&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;prettier/prettier&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;error&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;endOfLine&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;auto&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;react/jsx-props-no-spreading&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;react/jsx-filename-extension&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;no-use-before-define&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;import/extensions&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;import/no-unresolved&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.prettierrc&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;singleQuote&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;홑따옴표&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;사용&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;semi&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;세미콜론&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;찍기&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;useTabs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;탭&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;사용&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;여부&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;tabWidth&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;탭&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;넓이&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;trailingComma&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;all&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;후행&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;쉼표&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;찍기&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;ex)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;a:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;printWidth&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;한줄에&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;적히는&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;넓이&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;arrowParens&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;always&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;(x)=&amp;gt;x&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;처럼&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;매개변수가&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;하나일때&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;항상&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;괄호&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;표시&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;위처럼 파일을 작성하면 eslint와 prettier 설정 역시 완료되었다.&lt;/p&gt;
+
+&lt;h4 id=&quot;이모션-설치&quot;&gt;이모션 설치&lt;/h4&gt;
+
+&lt;p&gt;마지막으로 emotion을 설치 할 것이다. 나는 react 기반의 NEXT.js를 사용하기 때문에 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@emotion/react&lt;/code&gt;와 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@emotion/styled&lt;/code&gt;를 사용할 것이다.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-cmd&quot;&gt;npm i @emotion/react @emotion/styled
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;위의 명령어를 통해 필요한 패키지를 설치하면 끝이다.&lt;/p&gt;
+
+&lt;div class=&quot;language-tsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;styled&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;@emotion/styled&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Div&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;styled&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`
+  display: flex;
+`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;위 와 같이 사용할 수 있다.&lt;/p&gt;
+
+&lt;h4 id=&quot;브랜치-전략&quot;&gt;브랜치 전략&lt;/h4&gt;
+
+&lt;p&gt;브랜치 전략은 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub flow&lt;/code&gt;를 사용 할 것이다. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;git flow&lt;/code&gt;를 이전 팀 프로젝트를 하며 사용해보았지만 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;feat&lt;/code&gt;와 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fix&lt;/code&gt; 브랜치만 많이 사용하고 다른 브랜치는 많이 사용하지 않았던 것 같다. 또한 혼자하는 프로젝트기 때문에 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Github flow&lt;/code&gt;만으로도 충분하다고 생각했다.&lt;/p&gt;
+
+&lt;h3 id=&quot;마무리&quot;&gt;마무리&lt;/h3&gt;
+
+&lt;p&gt;오늘은 프론트엔드의 간단한 프로젝트 환경설정을 마무리 했다. 내일은 프로젝트에 필요한 기획서, feature list 등 문서화를 하고 백엔드 프로젝트 환경설정을 할 예정이다.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 22 May 2021 10:21:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/kakao-clone-1/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/kakao-clone-1/</guid>
+        
+        <category>next.js</category>
+        
+        <category>typescript</category>
+        
+        <category>eslint</category>
+        
+        <category>preitter</category>
+        
+        
+        <category>Development</category>
+        
+        <category>Clone</category>
+        
+      </item>
+    
+      <item>
+        <title>[JavaScript] 자바스크립트 Scope</title>
+        <description>&lt;p&gt;JavaScript의 핵심 개념 중 하나인 Scope에 대해 알아보자!&lt;/p&gt;
+
+&lt;h3 id=&quot;스코프-scope&quot;&gt;스코프 (Scope)&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;스코프 : 스코프는 참조 대상 식별자(identifier, 변수, 함수의 이름과 같이 어떤 대상을 다른 대상과 구분하여 식별할 수 있는 유일한 이름)를 찾아내기 위한 규칙&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;global&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;function scope&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  function scope&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  global&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;이름 같은 x가 중복 선언되었다. 전역에 선언된 x는 어디에서든 참조할 수 있다. 그러나 foo 함수 내부에서 선언된 변수 x는 foo 내부에서만 참조할 수 있고 함수 외부에서는 참조할 수 없다. 이러한 규칙을 스코프라고 한다.&lt;/p&gt;
+
+&lt;h3 id=&quot;스코프의-구분&quot;&gt;스코프의 구분&lt;/h3&gt;
+
+&lt;p&gt;자바스크립트에서는 스코프를 구분하면 다음과 같이 2가지로 구분할 수 있다.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;전역 스코프 (Global Scope)&lt;/strong&gt;
+코드 어디에서든지 참조할 수 있다
+&lt;strong&gt;지역 스코프 (Local Scope or Function-Level Scope)&lt;/strong&gt;
+함수 블록이 만든 스코프로 함수 자신과 하위 함수에서만 참조할 수 있다.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;모든 변수는 스코프를 갖고, 변수의 관점에서 스코프를 구분하면 다음과 같이 2가지로 구분할 수 있다.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;전역 변수 (Global Variable)&lt;/strong&gt;
+전역에서 선언된 변수이며 코드 어디에서든지 참조할 수 있다
+&lt;strong&gt;지역 변수 (Local Variable)&lt;/strong&gt;
+지역(함수) 내에서 선언된 변수이며 그 지역과 그 지역의 하부 지역에서만 참조할 수있다.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;자바스크립트-스코프의-특징&quot;&gt;자바스크립트 스코프의 특징&lt;/h3&gt;
+
+&lt;p&gt;자바스크립트는 기본적으로 함수 레벨 스코프를 따른다. 함수 레벨 스코프란 함수 코드 블록 내에 선언된 변수는 함수 코드 블록 내에서만 유효하고 함수 외부에서는 유효하지 않다는 것이다.&lt;/p&gt;
+
+&lt;p&gt;단, ECMAScript 6에 도입된 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;let&lt;/code&gt;를 사용하면 블록 레벨 스코프를 사용할 수 있다.&lt;/p&gt;
+
+&lt;h3 id=&quot;전역-스코프-global-scope&quot;&gt;전역 스코프 (Global Scope)&lt;/h3&gt;
+
+&lt;p&gt;전역에 변수를 선언하면 이 변수는 어디서나 참조할 수 있는 전역 스코프를 갖는 변수가 된다. var 키워드로 선언한 전역변수는 window의 프로퍼티이다.&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;global&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;global&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;local&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;local&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;global&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// global&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;local&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// local&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;global&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// global&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;local&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Uncaugh ReferenceError: local is not defined&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;변수 global은 전역에서 선언되었고 local은 foo 함수 내부에서 선언되었다. 따라서 전역 스코프에서 함수 내부에 선언된 local에 접근하려고 하면 에러가 발생한다.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;전역변수의 사용은 변수의 이름이 중복될 수 있고, 프로젝트가 커질 경우 함수에 의해 전역변수의 값이 변경될 경우 전역변수에 저장되어 있는 값을 파악하기 쉽지 않기 때문에 지양해야 한다.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;함수-레벨-스코프-function-level-scope&quot;&gt;함수 레벨 스코프 (Function-Level Scope)&lt;/h3&gt;
+
+&lt;p&gt;함수 코드 내에서 선언되는 변수는 함수 코드 블록 내에서만 참조가 가능하다&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 10;&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Uncaught ReferenceError: b is not defined&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;자바스크립트는 함수레벨 스코프를 사용한다. 즉, 함수 내에서 선언된 매개변수와 변수는 함수 외부에서 유효하지 않다. 따라서 b를 출력할 때 에러가 발생한다.&lt;/p&gt;
+
+&lt;p&gt;함수 내에 존재하는 함수인 내부 함수의 경우를 살펴보자!&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;global&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;local&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// local&lt;/span&gt;
+
+  &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 내부함수&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  local&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// global&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;내부함수는 자신을 포함하고 있는 외부함수의 변수에 접근할 수 있다. 이는 매우 유용하다. 클로저와 같이 내부 함수가 더 오래 생존하는 경우, 타 언어와는 다른 움직임을 보인다.&lt;/p&gt;
+
+&lt;p&gt;함수 bar에서 참조하는 변수 x는 함수 foo에서 선언된 지역변수이다. 이는 실행컨텍스트의 스코프 체인에 의해 참조 순위에서 전역 변수 x가 뒤로 밀렸기 때문이다.&lt;/p&gt;
+
+&lt;p&gt;실행 컨텍스트와 클로저에 대해서는 이후 포스팅할 예정이다.&lt;/p&gt;
+
+&lt;h3 id=&quot;블록-레벨-스코프-block-level-scope&quot;&gt;블록 레벨 스코프 (Block-Level Scope)&lt;/h3&gt;
+
+&lt;p&gt;모든 코드 블록 내에서 선언된 변수는 코드 블록 내에서만 유효하며 코드 블록 외부에서 참조할 수 없다.&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  foo&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  bar&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  foo&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  Uncaught ReferenceError: bar is not defined.&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;자바스크립트 ES6의 let 키워드는 블록 레벨 스코프를 따르기 때문에 if 문 내부의 블록에서 선언된 bar 변수는 외부에서 접근할 수 없기 때문에 에러가 발생한다.&lt;/p&gt;
+
+&lt;h3 id=&quot;렉시컬-스코프&quot;&gt;렉시컬 스코프&lt;/h3&gt;
+
+&lt;p&gt;렉시컬 스코프는 함수를 어디서 호출하는지가 아니라 어디서 선언하였는지에 따라 결정된다. 자바스크립트는 렉시컬 스코프를 따르므로 함수를 선언한 시점에 상위 스코프가 결정된다. 함수를 어디서 호출하였는지는 아무런 의미를 주지않는다.&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  1&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//  1&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;예제의 함수 bar은 전역에서 선언되었다. 따라서 bar의 상위 스코프는 전역 스코프이고 전역 변수 x의 값 1을 두번 출력한다.&lt;/p&gt;
+
+&lt;h3 id=&quot;reference&quot;&gt;Reference&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://poiemaweb.com/js-scope&quot;&gt;https://poiemaweb.com/js-scope&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Fri, 21 May 2021 06:48:00 +0000</pubDate>
+        <link>https://joojaewoo.github.io/posts/js-scope/</link>
+        <guid isPermaLink="true">https://joojaewoo.github.io/posts/js-scope/</guid>
+        
+        <category>javascript</category>
+        
+        
+        <category>Study</category>
+        
+        <category>JavaScript</category>
+        
+      </item>
+    
+  </channel>
+</rss>
